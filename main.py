@@ -1,18 +1,21 @@
 import matplotlib.pyplot as plt
 
-from load_data import load_data
-from get_spike_data import get_spike_times_for_epsp, get_isi_values
+from load_data import load_data, load_all_epsp_data
+from process_abf import get_all_sweep_data
+from get_spike_data import get_spike_times_for_epsp, calculate_spike_rate, get_isi_values
 
-epsp_file = "090216_0004 EPSP.abf"
+# isi = get_isi_values(spike_times)
 
-data = load_data(file_name=epsp_file)
 
-for i in range(7):
-    data.setSweep(i)
-    plt.plot(data.sweepX, data.sweepY)
-    plt.show()
+d = load_data("../../Granule-Data/GrC_Subject22_220118", "22118_0003 EPSP.abf")
+# ds = get_all_sweep_data(d)
+spike_times = get_spike_times_for_epsp(d)
 
-spike_times = get_spike_times_for_epsp(data)
-isi = get_isi_values(spike_times)
+r = calculate_spike_rate(spike_times, 0.001)
+# abfobjects = load_all_epsp_data()
+
+plt.plot(r)
+plt.show()
+
 
 x = True
