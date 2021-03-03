@@ -34,6 +34,8 @@ def calculate_spike_rate(spike_times, bin_size=None):
         except ValueError:
             bin_size = 0.1
             end_spike_time = 2
+    else:
+        end_spike_time = max(spike_times) + 0.2
     for b in np.arange(0, end_spike_time+bin_size, bin_size):
         bin_spikes = [spike for spike in spike_times if b < spike <= b + bin_size]
         rate_values.append(len(bin_spikes)/bin_size)
