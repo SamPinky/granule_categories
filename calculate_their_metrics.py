@@ -1,6 +1,6 @@
 import numpy as np
 from get_spike_data import calculate_spike_rate, get_spike_times_for_epsp, get_spike_times_for_cc
-
+from check_spike_rate_distribution import calculate_spike_rate_kernel_smoothing
 
 def calculate_all_metrics_for_epsp(abf_object):
     ifc_values = []
@@ -24,6 +24,8 @@ def calculate_all_metrics_for_cc(abf_object):
     for sweep in range(abf_object.sweepCount):
         abf_object.setSweep(sweep)
         spike_t = get_spike_times_for_cc(abf_object)
+        calculate_spike_rate_kernel_smoothing(spike_t)
         spike_r = calculate_spike_rate(spike_t)
-        ifc_values.append(calculate_ifc(spike_r))
+        if spike_r:
+            ifc_values.append(calculate_ifc(spike_r))
     return np.mean(ifc_values)

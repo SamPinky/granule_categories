@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 from load_data import load_data, load_all_epsp_data, tabulate_data_format, load_all_cc_data
 from process_abf import get_all_sweep_data, get_all_isis
-from check_spike_rate_distribution import plot_spike_rates, get_all_spike_rates
+from check_spike_rate_distribution import plot_spike_rates, get_all_spike_rates,calculate_spike_rate_kernel_smoothing
 from get_spike_data import get_spike_times_for_epsp, get_spike_times_for_cc, calculate_spike_rate, get_isi_values
 from isi_analysis import fit_gamma_distribution
 from visualisation import plot_all_abf_data
