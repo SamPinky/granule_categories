@@ -24,13 +24,14 @@ def get_all_spike_rates(abf_objects):
 
 
 def calculate_spike_rate_kernel_smoothing(spike_times):
-    # Get all spike times in a single list.
-    spike_times = spike_times[:, np.newaxis]
-    model = KernelDensity()
-    model.fit(spike_times)
-    log_dens = model.score_samples(spike_times)
-    plt.fill(spike_times, np.exp(log_dens), c='cyan')
-    plt.show()
+    x_d = np.linspace(0, max(spike_times)+0.5, 1000)
+    spike_times = np.array(spike_times)
+    model = KernelDensity(bandwidth=0.1, kernel='gaussian')
+    model.fit(spike_times[:, None])
+    log_dens = model.score_samples(x_d[:, None])
+    # plt.fill_between(x_d, np.exp(log_dens))
+    # plt.show()
+    return np.exp(log_dens)
 
 
 

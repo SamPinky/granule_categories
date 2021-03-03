@@ -5,9 +5,8 @@ from process_abf import get_all_sweep_data, get_all_isis
 from check_spike_rate_distribution import plot_spike_rates, get_all_spike_rates,calculate_spike_rate_kernel_smoothing
 from get_spike_data import get_spike_times_for_epsp, get_spike_times_for_cc, calculate_spike_rate, get_isi_values
 from isi_analysis import fit_gamma_distribution
-from visualisation import plot_all_abf_data
-from psth import create_psth
-from calculate_their_metrics import calculate_all_metrics_for_cc
+from visualisation import plot_all_abf_data, create_psth
+from calculate_their_metrics import calculate_all_metrics_for_cc, get_f_initial
 
 # isi = get_isi_values(spike_times)
 
@@ -17,20 +16,38 @@ from calculate_their_metrics import calculate_all_metrics_for_cc
 # spike_times = get_spike_times_for_epsp(d)
 
 # r = calculate_spike_rate(spike_times, 0.001)
-abfobjects = load_all_cc_data()
+abfobjects = load_all_epsp_data() + load_all_cc_data()
+results = get_f_initial(abfobjects)
+x = [i[0] for i in results]
+y = [i[1] for i in results]
+plt.scatter(x, y)
+plt.show()
 # plot_all_abf_data(abfobjects)
-x = calculate_all_metrics_for_cc(abfobjects[0])
+#
+# c = []
+# for obj in abfobjects:
+#     for sweep in range(obj.sweepCount):
+#         c.append(min(obj.sweepC))
+#
+# print(max(c))
+# print(min(c))
+#
+ifc = []
 
-spike_times = []
 for i in abfobjects:
-    neuron_spikes = []
-    for j in range(i.sweepCount):
-        i.setSweep(j)
-        spike_t = get_spike_times_for_cc(i)
-        if spike_t:
-            neuron_spikes.append(spike_t)
-    create_psth(neuron_spikes)
+    ifc.append(calculate_all_metrics_for_cc(i))
+abfobjects = load_all_cc_data()
+for i in abfobjects:
+    ifc.append(calculate_all_metrics_for_cc(i))
 
+# for i in abfobjects:
+#     neuron_spikes = []
+#     for j in range(i.sweepCount):
+#         i.setSweep(j)
+#         neuron_spikes = neuron_spikes + get_spike_times_for_cc(i)
+#     if len(neuron_spikes) > 1:
+#         create_psth(neuron_spikes)
+# # #
 
 
 # # rates = get_all_spike_rates(abfobjects)

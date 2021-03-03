@@ -2,6 +2,9 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 import re
+import numpy as np
+from sklearn.neighbors import KernelDensity
+import matplotlib.pyplot as plt
 
 from get_spike_data import get_spike_times_for_cc, get_spike_times_for_epsp
 
@@ -55,6 +58,16 @@ def plot_all_abf_data(abf_objects):
             create_plot(obj, x)
         x += 1
 
+
+def create_psth(spike_times):
+    x_d = np.linspace(0, max(spike_times) + 0.5, 1000)
+    spike_times = np.array(spike_times)
+    model = KernelDensity(bandwidth=0.1, kernel='gaussian')
+    model.fit(spike_times[:, None])
+    log_dens = model.score_samples(x_d[:, None])
+    plt.fill_between(x_d, np.exp(log_dens))
+    plt.plot(spike_times, np.full_like(spike_times, -0.1), '|k', markeredgewidth=1)
+    plt.show()
 
 
 
