@@ -19,15 +19,17 @@ def create_plot(abf_objects, plot_number):
     fig.suptitle(f"Plot group {plot_number}", fontsize=16)
     line_offset = [30]
     line_length = [30]
-    colors = ['C{}'.format(i) for i in range(2)]
-    colors = colors[1:]
+    colors = ['C{}'.format(i) for i in range(3)]
+    colors = colors[2:]
 
     axs[0, 0].title.set_text(re.sub("/home/samp/Granule-Data/", "", abf_objects[0].abfFilePath))
     for i in range(abf_objects[0].sweepCount):
-        abf_objects[0].setSweep(i)
-        spike_times = get_spike_times_for_cc(abf_objects[0])
-        axs[i, 0].plot(abf_objects[0].sweepX, abf_objects[0].sweepY)
-        axs[i, 0].eventplot(spike_times, colors=colors, lineoffsets=line_offset, linelengths=line_length)
+        spike_times = []
+        for j in range(abf_objects[0].channelCount):
+            abf_objects[0].setSweep(i, channel=j)
+            axs[i, 0].plot(abf_objects[0].sweepX, abf_objects[0].sweepY)
+            spike_times = spike_times + get_spike_times_for_cc(abf_objects[0])
+        axs[i, 0].eventplot(np.unique(spike_times), colors=colors, lineoffsets=line_offset, linelengths=line_length)
         axs[i, 0].set_ylabel(f"Sweep {i + 1}")
         axs[i, 0].tick_params(labelsize=15)
 

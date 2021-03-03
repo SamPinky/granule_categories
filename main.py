@@ -17,12 +17,15 @@ from calculate_their_metrics import calculate_all_metrics_for_cc, get_f_initial
 
 # r = calculate_spike_rate(spike_times, 0.001)
 abfobjects = load_all_epsp_data() + load_all_cc_data()
-results = get_f_initial(abfobjects)
-x = [i[0] for i in results]
-y = [i[1] for i in results]
-plt.scatter(x, y)
-plt.show()
-# plot_all_abf_data(abfobjects)
+plot_all_abf_data(abfobjects)
+
+
+
+# results = get_f_initial(abfobjects)
+# x = [i[0] for i in results]
+# y = [i[1] for i in results]
+# plt.scatter(x, y)
+# plt.show()
 #
 # c = []
 # for obj in abfobjects:
