@@ -18,6 +18,16 @@ def load_all_epsp_data():
     return abf_objects
 
 
+def load_all_cc_data():
+    root_dir = "../../Granule-Data/"
+    abf_objects = []
+    for subdir, dirs, files in os.walk(root_dir):
+        for file in files:
+            if "CC" in file:
+                abf_objects.append(load_data(subdir, file))
+    return abf_objects
+
+
 def tabulate_data_format(abf_objects):
     for object in abf_objects:
         print(f"Subject: {object.abfFolderPath}, Number of Sweeps: {object.sweepCount}")

@@ -2,6 +2,12 @@ from scipy.signal import find_peaks
 import numpy as np
 
 
+def get_spike_times_for_cc(abfdata):
+    peaks, _ = find_peaks(abfdata.sweepY, height=-30)
+    spike_times = [abfdata.sweepX[point] for point in peaks]
+    return spike_times
+
+
 def get_spike_times_for_epsp(abfdata):
     peaks, _ = find_peaks(abfdata.sweepY, height=0)
     spike_times = [abfdata.sweepX[point] for point in peaks]
