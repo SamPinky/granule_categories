@@ -20,8 +20,7 @@ def get_all_isis(abf_objects):
         sweep_data = get_all_sweep_data(abf_ob)
         for sweep in sweep_data:
             sweep = get_spike_times_for_trace(sweep)
-            isi = get_isi_values(sweep)
-            isis = isis + isi
+            isis.append(get_isi_values(sweep))
     return isis
 
 

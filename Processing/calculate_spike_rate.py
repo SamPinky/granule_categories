@@ -1,8 +1,7 @@
 import numpy as np
 from sklearn.neighbors import KernelDensity
 
-from process_raw_trace import get_all_sweep_data
-from Processing.process_raw_trace import get_spike_times_for_epsp, get_spike_times_for_trace
+from Processing.process_raw_trace import get_spike_times_for_epsp, get_spike_times_for_trace, get_all_sweep_data
 
 
 def calculate_spike_rate(spike_times, bin_size=0.5):
