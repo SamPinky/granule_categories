@@ -1,15 +1,11 @@
-import matplotlib.pyplot as plt
-import math
-import numpy as np
 import re
 import numpy as np
-from sklearn.neighbors import KernelDensity
 import matplotlib.pyplot as plt
 
-from get_spike_data import get_spike_times_for_cc, get_spike_times_for_epsp
+from Processing.process_raw_trace import get_spike_times_for_cc
 
 
-def create_plot(abf_objects, plot_number):
+def create_nep_plot(abf_objects, plot_number):
     n_subplots = max([o.sweepCount for o in abf_objects]) * 2
     if n_subplots > 2:
         fig, axs = plt.subplots(int(n_subplots / 2), 2, sharex=True)
@@ -17,10 +13,9 @@ def create_plot(abf_objects, plot_number):
         fig, axs = plt.subplots(2, 2, sharex=True)
 
     fig.suptitle(f"Plot group {plot_number}", fontsize=16)
-    line_offset = [30]
-    line_length = [30]
     colors = ['C{}'.format(i) for i in range(3)]
     colors = colors[2:]
+    line_length = [30]
 
     axs[0, 0].title.set_text(re.sub("/home/samp/Granule-Data/", "", abf_objects[0].abfFilePath))
     for i in range(abf_objects[0].sweepCount):
@@ -29,6 +24,7 @@ def create_plot(abf_objects, plot_number):
             abf_objects[0].setSweep(i, channel=j)
             axs[i, 0].plot(abf_objects[0].sweepX, abf_objects[0].sweepY)
             spike_times = spike_times + get_spike_times_for_cc(abf_objects[0])
+        line_offset = [30 + max(abf_objects[0].sweepY)]
         axs[i, 0].eventplot(np.unique(spike_times), colors=colors, lineoffsets=line_offset, linelengths=line_length)
         axs[i, 0].set_ylabel(f"Sweep {i + 1}")
         axs[i, 0].tick_params(labelsize=15)
@@ -38,6 +34,7 @@ def create_plot(abf_objects, plot_number):
         for i in range(abf_objects[1].sweepCount):
             abf_objects[1].setSweep(i)
             spike_times = get_spike_times_for_cc(abf_objects[1])
+            line_offset = [30 + max(abf_objects[1].sweepY)]
             axs[i, 1].eventplot(spike_times, colors=colors, lineoffsets=line_offset, linelengths=line_length)
             axs[i, 1].plot(abf_objects[1].sweepX, abf_objects[1].sweepY)
             axs[i, 1].set_ylabel(f"Sweep {i + 1}")
@@ -55,24 +52,7 @@ def plot_all_abf_data(abf_objects):
     it = iter(abf_objects)
     for obj in it:
         try:
-            create_plot([obj, next(it)], x)
+            create_nep_plot([obj, next(it)], x)
         except IndexError:
-            create_plot(obj, x)
+            create_nep_plot(obj, x)
         x += 1
-
-
-def create_psth(spike_times):
-    x_d = np.linspace(0, max(spike_times) + 0.5, 1000)
-    spike_times = np.array(spike_times)
-    model = KernelDensity(bandwidth=0.1, kernel='gaussian')
-    model.fit(spike_times[:, None])
-    log_dens = model.score_samples(x_d[:, None])
-    plt.fill_between(x_d, np.exp(log_dens))
-    plt.plot(spike_times, np.full_like(spike_times, -0.1), '|k', markeredgewidth=1)
-    plt.show()
-
-
-
-
-
-

@@ -1,6 +1,6 @@
 import numpy as np
-from get_spike_data import calculate_spike_rate, get_spike_times_for_epsp, get_spike_times_for_cc
-from check_spike_rate_distribution import calculate_spike_rate_kernel_smoothing
+from Processing.process_raw_trace import get_spike_times_for_cc
+from Processing.calculate_spike_rate import calculate_spike_rate_kernel_smoothing
 
 
 def calculate_all_metrics_for_epsp(abf_object):
@@ -37,6 +37,18 @@ def calculate_all_metrics_for_cc(abf_object):
         return calculate_ifc(pdf) * 100
     else:
         return None
+
+
+def calculate_ifc_from_bins(spike_rates):
+    ifc_values = []
+    for rate in spike_rates:
+        finitial = rate[0]
+        ffinal = rate[-1]
+        if finitial == 0:
+            pass
+        else:
+            ifc_values.append([finitial, (ffinal-finitial)/finitial * 100])
+    return ifc_values
 
 
 def get_f_initial(abf_objects):
