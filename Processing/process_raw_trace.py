@@ -1,4 +1,7 @@
+import numpy as np
 from scipy.signal import find_peaks
+import peakutils
+import matplotlib.pyplot as plt
 
 
 def get_all_sweep_data(abf_object):
@@ -24,14 +27,30 @@ def get_all_isis(abf_objects):
     return isis
 
 
-def get_spike_times_for_cc(abfdata):
-    peaks, _ = find_peaks(abfdata.sweepY, height=-30)
-    spike_times = [abfdata.sweepX[point] for point in peaks]
+def get_spike_times_for_cc(abfdata, sweep_num, refrac=0.015):
+    spike_times = []
+    for channel in range(abfdata.channelCount):
+        abfdata.setSweep(sweep_num, channel=channel)
+        thresholds = [np.mean(peakutils.baseline(abfdata.sweepY[int(len(abfdata.sweepY)/10): int(len(abfdata.sweepY)*2/3)])) + 25, -50]
+        peaks, _ = find_peaks(abfdata.sweepY, height=max(thresholds))
+        spike_times = spike_times + [abfdata.sweepX[point] for point in peaks]
+    to_remove = []
+    next_pass = True
+    for i, t in enumerate(spike_times):
+        if next_pass:
+            next_pass = False
+            pass
+        else:
+            if t - spike_times[i-1] < refrac:
+                to_remove.append(i)
+                next_pass = True
+    for r in reversed(to_remove):
+        spike_times.pop(r)
     return spike_times
 
 
-def get_spike_times_for_epsp(abfdata):
-    peaks, _ = find_peaks(abfdata.sweepY, height=0)
+def get_spike_times_for_epsp(abfdata, threshold=0):
+    peaks, _ = find_peaks(abfdata.sweepY, height=threshold)
     spike_times = [abfdata.sweepX[point] for point in peaks]
     return spike_times
 

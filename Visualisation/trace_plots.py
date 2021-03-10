@@ -19,25 +19,26 @@ def create_nep_plot(abf_objects, plot_number):
 
     axs[0, 0].title.set_text(re.sub("/home/samp/Granule-Data/", "", abf_objects[0].abfFilePath))
     for i in range(abf_objects[0].sweepCount):
-        spike_times = []
+        spike_times = get_spike_times_for_cc(abf_objects[0], i)
         for j in range(abf_objects[0].channelCount):
             abf_objects[0].setSweep(i, channel=j)
             axs[i, 0].plot(abf_objects[0].sweepX, abf_objects[0].sweepY)
-            spike_times = spike_times + get_spike_times_for_cc(abf_objects[0])
         line_offset = [30 + max(abf_objects[0].sweepY)]
         axs[i, 0].eventplot(np.unique(spike_times), colors=colors, lineoffsets=line_offset, linelengths=line_length)
-        axs[i, 0].set_ylabel(f"Sweep {i + 1}")
+        axs[i, 0].set_ylabel(f"I={abf_objects[0].sweepC[int(len(abf_objects[0].sweepC)/2)]}")
         axs[i, 0].tick_params(labelsize=15)
 
     if len(abf_objects) > 1:
         axs[0, 1].title.set_text(re.sub("/home/samp/Granule-Data/", "", abf_objects[1].abfFilePath))
         for i in range(abf_objects[1].sweepCount):
-            abf_objects[1].setSweep(i)
-            spike_times = get_spike_times_for_cc(abf_objects[1])
+            spike_times = get_spike_times_for_cc(abf_objects[1], i)
+            for j in range(abf_objects[1].channelCount):
+                abf_objects[1].setSweep(i, channel=j)
+                axs[i, 1].plot(abf_objects[1].sweepX, abf_objects[1].sweepY)
             line_offset = [30 + max(abf_objects[1].sweepY)]
             axs[i, 1].eventplot(spike_times, colors=colors, lineoffsets=line_offset, linelengths=line_length)
             axs[i, 1].plot(abf_objects[1].sweepX, abf_objects[1].sweepY)
-            axs[i, 1].set_ylabel(f"Sweep {i + 1}")
+            axs[i, 1].set_ylabel(f"I={abf_objects[1].sweepC[int(len(abf_objects[1].sweepC) / 2)]}")
             axs[i, 1].tick_params(labelsize=15)
 
     # Add graph annotations
@@ -48,11 +49,15 @@ def create_nep_plot(abf_objects, plot_number):
 
 
 def plot_all_abf_data(abf_objects):
+    last_i = len(abf_objects)
     x = 1
     it = iter(abf_objects)
     for obj in it:
-        try:
-            create_nep_plot([obj, next(it)], x)
-        except IndexError:
-            create_nep_plot(obj, x)
-        x += 1
+        if last_i < x*2:
+            create_nep_plot([obj], x)
+        else:
+            try:
+                create_nep_plot([obj, next(it)], x)
+            except IndexError:
+                create_nep_plot(obj, x)
+            x += 1

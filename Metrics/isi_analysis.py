@@ -19,7 +19,10 @@ def calculate_cv(isi_values):
 
 
 def do_isi_analysis(abf_objects):
+    # TODO: Note that ISI was only used for more than 250 ISIs
+
     isis = get_all_isis(abf_objects)
+    isis = [isi for isi in isis if len(isi) > 9]
     metrics = []
     for isi in isis:
         if len(isi) > 5:
@@ -37,26 +40,27 @@ def do_isi_analysis(abf_objects):
 
 
 def kmeans_clustering(metrics):
-    km = KMeans(n_clusters=3).fit(metrics)
+    for i in range(2, 10):
+        km = KMeans(n_clusters=i).fit(metrics)
 
-    plots = {}
-    plots["shape"] = [metric[0] for metric in metrics]
-    plots["cv"] = [metric[1] for metric in metrics]
-    plots["labels"] = km.labels_
+        plots = {}
+        plots["shape"] = [metric[0] for metric in metrics]
+        plots["cv"] = [metric[1] for metric in metrics]
+        plots["labels"] = km.labels_
 
-    plt.figure(figsize=(16, 10))
-    plt.title(f"Kmeans")
+        plt.figure(figsize=(16, 10))
+        plt.title(f"Kmeans")
 
-    p1 = sns.scatterplot(
-        x="shape", y="cv",
-        # palette=sns.color_palette("hls", 10),
-        hue="labels",
-        # palette=sns.color_palette("hls"),
-        data=plots,
-        legend="full",
-        alpha=1
-    )
-    plt.show()
+        p1 = sns.scatterplot(
+            x="shape", y="cv",
+            # palette=sns.color_palette("hls", 10),
+            hue="labels",
+            # palette=sns.color_palette("hls"),
+            data=plots,
+            legend="full",
+            alpha=1
+        )
+        plt.show()
 
 
 
