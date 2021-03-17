@@ -5,13 +5,15 @@ from Visualisation.trace_plots import plot_all_abf_data
 from Visualisation.rate_plots import plot_all_psth
 from Metrics.masoli_metrics import do_masoli_analysis
 from Metrics.my_metrics import compute_neuron_vectors
+from Visualisation.metrics_plots import plot_masoli_metrics
 import numpy as np
 
-# abfobjects = load_all_epsp_data()
+# abfobjects = load_all_cc_data() + load_all_epsp_data()
 # plot_all_abf_data(abf_objects=abfobjects)
-vectors = compute_neuron_vectors(load_all_cc_data(), load_all_epsp_data())
+vectors, neurons = compute_neuron_vectors(load_all_cc_data(), load_all_epsp_data())
+neurons = list(neurons)
 np.savetxt("vectors.csv", vectors, delimiter=',')
-
+plot_masoli_metrics(vectors)
 # do_isi_analysis(abfobjects)
 
 

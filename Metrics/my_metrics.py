@@ -24,23 +24,27 @@ def calculate_sfc(abf_objs):
             spikes = [spike for spike in spikes if 0.5 <= spike < 0.75]
             fresp.append(len(spikes)/0.25)
     fresp = np.mean(fresp)
-    return (fresp-50)/50
+    return ((fresp-50)/50) * 100
 
 
 def calculate_ifc(abf_objs):
     if len(abf_objs) == 0:
         return None
     ifc = 0
+    f_init = 0
     # At 10pa
     for obj in abf_objs:
-        spikes = get_spike_times_for_cc(obj, 9)
+        spikes = get_spike_times_for_cc(obj, 8)
         f_initial = len([spike for spike in spikes if spike <= 0.5]) / 0.5
         f_final = len([spike for spike in spikes if 1.5 < spike]) / 0.5
+        if "Subject13" in obj.abfFolderPath.split("/")[-1]:
+            x = True
         if f_initial > 0:
-            ifc += (f_final - f_initial) / f_initial
+            ifc += ((f_final - f_initial) / f_initial) * 100
         else:
-            ifc += f_final
-    return ifc/len(abf_objs)
+            ifc += 100
+        f_init += f_initial
+    return ifc/len(abf_objs), f_init/len(abf_objs)
 
 
 def calculate_bfrac(times, kdf, B):
@@ -70,7 +74,9 @@ def compute_neuron_vectors(cc_objects, epsp_objects):
         sub_epsp = [obj for obj in cc_objects if neuron in obj.abfFolderPath]
 
         vector.append(calculate_sfc(sub_epsp))
-        vector.append(calculate_ifc(sub_cc))
+        ifc, f_initial = calculate_ifc(sub_cc)
+        vector.append(ifc)
+        vector.append(f_initial)
         if len(sub_cc) > 0:
             B = 0
             B_frac = 0
@@ -125,4 +131,4 @@ def compute_neuron_vectors(cc_objects, epsp_objects):
             vector.append(None)
         vectors.append(vector)
         # TODO: Normalise vector
-    return np.array(vectors)
+    return np.array(vectors), neuron_names
