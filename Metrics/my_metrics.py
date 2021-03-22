@@ -1,6 +1,7 @@
 import numpy as np
 import decimal
 from lmfit.models import ParabolicModel
+from sklearn.linear_model import LinearRegression
 
 
 from Processing.process_raw_trace import get_spike_times_for_cc, get_spike_times_for_epsp
@@ -65,6 +66,17 @@ def fit_quadratic(points):
     return result.params["a"].value, result.params["b"].value, result.params["c"].value, e/len(x)
 
 
+def fit_linear(points):
+    x = np.array([point[0] for point in points])
+    x = x[:, None]
+    y = [point[1] for point in points]
+    model = LinearRegression().fit(x, y)
+    e = model.score(x, y)
+    m = model.coef_
+    c = model.intercept_
+    return m, c, e
+
+
 def compute_neuron_vectors(cc_objects, epsp_objects):
     neuron_names = set([obj.abfFolderPath.split("/")[-1] for obj in epsp_objects + cc_objects])
     vectors = []
@@ -83,8 +95,7 @@ def compute_neuron_vectors(cc_objects, epsp_objects):
             max_v = 0
             mean = 0
             median = 0
-            a = 0
-            b = 0
+            m = 0
             c = 0
             e = 0
             for obj in sub_cc:
@@ -104,20 +115,18 @@ def compute_neuron_vectors(cc_objects, epsp_objects):
                     median += np.median(kdf[100:-100])
 
                     maxima = [[x, y] for i, x, y in zip(indexes, x_d, kdf) if kdf[i-1] < y > kdf[i+1]]
-                    if len(maxima) > 2:
-                        new_a, new_b, new_c, new_e = fit_quadratic(maxima)
+                    if len(maxima) > 1:
+                        new_m, new_c, new_e = fit_linear(maxima)
                     else:
-                        new_a, new_b, new_c, new_e = 0, 0, 0, 0
-                    a += new_a
-                    b += new_b
+                        new_m, new_c, new_e = 0, 0, 0
+                    m += new_m
                     c += new_c
                     e += new_e
             vector.append(B/len(sub_cc))
             vector.append(B_frac/len(sub_cc))
             vector.append(max_v/len(sub_cc))
             vector.append(mean/len(sub_cc))
-            vector.append(a/len(sub_cc))
-            vector.append(b/len(sub_cc))
+            vector.append(m/len(sub_cc))
             vector.append(c/len(sub_cc))
             vector.append(e/len(sub_cc))
         else:

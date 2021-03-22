@@ -47,3 +47,65 @@ def do_tsne_on_ks(freq_components):
                 alpha=0.3
             )
             plt.show()
+
+
+def do_tsne_on_vectors(vectors, neuron_names):
+    for p in range(5, 20):
+        tsne = TSNE(n_components=2, n_iter=300, perplexity=5)
+        tsne_results = tsne.fit_transform(vectors)
+
+        tpd = {}
+
+        tpd['tsne-2d-one'] = tsne_results[:, 0]
+        tpd['tsne-2d-two'] = tsne_results[:, 1]
+        tpd['Point'] = ["Blue" for i in range(len(tsne_results[:, 0]))]
+        tpd["Point"][0] = "Red"
+        plt.figure(figsize=(16, 10))
+
+        p1 = sns.scatterplot(
+            x="tsne-2d-one", y="tsne-2d-two",
+            # palette=sns.color_palette("hls", 10),
+            hue="Point",
+            # palette=sns.color_palette("hls"),
+            data=tpd,
+            legend="full",
+            alpha=1
+        )
+        for i, neuron in enumerate(neuron_names):
+            p1.text(tpd['tsne-2d-one'][i] + 0.01, tpd['tsne-2d-two'][i],
+                    neuron, horizontalalignment='left',
+                    size='small', color='black', weight='bold')
+        plt.show()
+
+
+def do_tsne_on_kdfs(kdfs, neuron_names):
+    iters = [i for i in range(250, 300, 50)]
+    perplexi = [i for i in range(50, 150, 50)]
+    for it in iters:
+        for p in perplexi:
+            tsne = TSNE(n_components=2, n_iter=it, perplexity=p)
+            tsne_results = tsne.fit_transform(kdfs)
+
+            tpd = {}
+
+            tpd['tsne-2d-one'] = tsne_results[:, 0]
+            tpd['tsne-2d-two'] = tsne_results[:, 1]
+            tpd['Point'] = ["Blue" for i in range(len(tsne_results[:, 0]))]
+            tpd["Point"][0] = "Red"
+            plt.figure(figsize=(16, 10))
+            plt.title(f"tsne results on vectors {it} {p}")
+
+            p1 = sns.scatterplot(
+                x="tsne-2d-one", y="tsne-2d-two",
+                # palette=sns.color_palette("hls", 10),
+                hue="Point",
+                # palette=sns.color_palette("hls"),
+                data=tpd,
+                legend="full",
+                alpha=1
+            )
+            for i, neuron in enumerate(neuron_names):
+                p1.text(tpd['tsne-2d-one'][i] + 0.01, tpd['tsne-2d-two'][i],
+                        neuron, horizontalalignment='left',
+                        size='small', color='black', weight='bold')
+            plt.show()
