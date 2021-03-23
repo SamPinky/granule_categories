@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
 import seaborn as sns
+from sklearn.cluster import KMeans, AgglomerativeClustering
 
 from Processing.calculate_spike_rate import calculate_spike_rate_kernel_smoothing
 from Processing.process_raw_trace import get_spike_times_for_cc
@@ -49,63 +50,82 @@ def do_tsne_on_ks(freq_components):
             plt.show()
 
 
-def do_tsne_on_vectors(vectors, neuron_names):
-    for p in range(5, 20):
-        tsne = TSNE(n_components=2, n_iter=300, perplexity=5)
-        tsne_results = tsne.fit_transform(vectors)
+def do_tsne_on_vectors(vectors, neuron_names, labels=None):
+    tsne = TSNE(n_components=2, n_iter=1000, perplexity=3)
+    tsne_results = tsne.fit_transform(vectors)
 
-        tpd = {}
+    tpd = {}
 
-        tpd['tsne-2d-one'] = tsne_results[:, 0]
-        tpd['tsne-2d-two'] = tsne_results[:, 1]
-        tpd['Point'] = ["Blue" for i in range(len(tsne_results[:, 0]))]
-        tpd["Point"][0] = "Red"
-        plt.figure(figsize=(16, 10))
+    tpd['tsne-2d-one'] = tsne_results[:, 0]
+    tpd['tsne-2d-two'] = tsne_results[:, 1]
+    plt.figure(figsize=(16, 10))
 
+    if labels is not None:
         p1 = sns.scatterplot(
             x="tsne-2d-one", y="tsne-2d-two",
-            # palette=sns.color_palette("hls", 10),
-            hue="Point",
-            # palette=sns.color_palette("hls"),
+            hue=labels,
+            palette=sns.color_palette("hls", len(set(labels))),
             data=tpd,
             legend="full",
             alpha=1
         )
-        for i, neuron in enumerate(neuron_names):
-            p1.text(tpd['tsne-2d-one'][i] + 0.01, tpd['tsne-2d-two'][i],
-                    neuron, horizontalalignment='left',
-                    size='small', color='black', weight='bold')
-        plt.show()
+    else:
+        p1 = sns.scatterplot(
+            x="tsne-2d-one", y="tsne-2d-two",
+            data=tpd,
+            legend="full",
+            alpha=1
+        )
+
+    # for i, neuron in enumerate(neuron_names):
+    #     p1.text(tpd['tsne-2d-one'][i] + 0.01, tpd['tsne-2d-two'][i],
+    #             neuron, horizontalalignment='left',
+    #             size='small', color='black', weight='bold')
+    plt.show()
+    return tpd
 
 
-def do_tsne_on_kdfs(kdfs, neuron_names):
-    iters = [i for i in range(250, 300, 50)]
-    perplexi = [i for i in range(50, 150, 50)]
-    for it in iters:
-        for p in perplexi:
-            tsne = TSNE(n_components=2, n_iter=it, perplexity=p)
-            tsne_results = tsne.fit_transform(kdfs)
+def do_tsne_on_kdfs(kdfs, neuron_names, labels=None):
+    tsne = TSNE(n_components=2, n_iter=400, perplexity=5)
+    tsne_results = tsne.fit_transform(kdfs)
 
-            tpd = {}
+    tpd = {}
 
-            tpd['tsne-2d-one'] = tsne_results[:, 0]
-            tpd['tsne-2d-two'] = tsne_results[:, 1]
-            tpd['Point'] = ["Blue" for i in range(len(tsne_results[:, 0]))]
-            tpd["Point"][0] = "Red"
-            plt.figure(figsize=(16, 10))
-            plt.title(f"tsne results on vectors {it} {p}")
+    tpd['tsne-2d-one'] = tsne_results[:, 0]
+    tpd['tsne-2d-two'] = tsne_results[:, 1]
+    plt.figure(figsize=(16, 10))
+    plt.title(f"tsne results on KDFs")
 
-            p1 = sns.scatterplot(
-                x="tsne-2d-one", y="tsne-2d-two",
-                # palette=sns.color_palette("hls", 10),
-                hue="Point",
-                # palette=sns.color_palette("hls"),
-                data=tpd,
-                legend="full",
-                alpha=1
-            )
-            for i, neuron in enumerate(neuron_names):
-                p1.text(tpd['tsne-2d-one'][i] + 0.01, tpd['tsne-2d-two'][i],
-                        neuron, horizontalalignment='left',
-                        size='small', color='black', weight='bold')
-            plt.show()
+    if labels is not None:
+        p1 = sns.scatterplot(
+            x="tsne-2d-one", y="tsne-2d-two",
+            hue=labels,
+            palette=sns.color_palette("hls", len(set(labels))),
+            data=tpd,
+            legend="full",
+            alpha=1
+        )
+    else:
+        p1 = sns.scatterplot(
+            x="tsne-2d-one", y="tsne-2d-two",
+            data=tpd,
+            legend="full",
+            alpha=1
+        )
+    plt.show()
+
+
+def knn_on_metrics(vectors):
+    ifc = [vector[1] for vector in vectors]
+    finitial = [vector[2] for vector in vectors]
+    nbrs = KMeans(n_clusters=4).fit([[f, ifc_v] for f, ifc_v in zip(finitial, ifc)])
+    labels = nbrs.labels_
+    return labels
+
+
+def agglomerative_clustering_on_vectors(response_vectors):
+    ifc = [vector[1] for vector in response_vectors]
+    finitial = [vector[2] for vector in response_vectors]
+    data = [[fin, ifcc] for fin, ifcc in zip(finitial, ifc)]
+    aggl = AgglomerativeClustering(distance_threshold=0, n_clusters=None).fit(data)
+    return aggl

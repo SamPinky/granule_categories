@@ -35,7 +35,7 @@ def calculate_ifc(abf_objs):
     f_init = 0
     # At 10pa
     for obj in abf_objs:
-        spikes = get_spike_times_for_cc(obj, 8)
+        spikes = get_spike_times_for_cc(obj, 9)
         f_initial = len([spike for spike in spikes if spike <= 0.5]) / 0.5
         f_final = len([spike for spike in spikes if 1.5 < spike]) / 0.5
         if "Subject13" in obj.abfFolderPath.split("/")[-1]:
@@ -126,6 +126,7 @@ def compute_neuron_vectors(cc_objects, epsp_objects):
             vector.append(B_frac/len(sub_cc))
             vector.append(max_v/len(sub_cc))
             vector.append(mean/len(sub_cc))
+            vector.append(median/len(sub_cc))
             vector.append(m/len(sub_cc))
             vector.append(c/len(sub_cc))
             vector.append(e/len(sub_cc))

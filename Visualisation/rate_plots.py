@@ -49,7 +49,7 @@ def create_psth(spike_times, function=False):
         else:
             return
         plt.plot(x_d, y, "g")
-        plt.title(f"{len(maxima)}")
+        plt.title(f"{len(maxima)}, m={new_b}, c={new_c}")
     plt.show()
 
 
