@@ -52,6 +52,10 @@ def do_tsne_on_ks(freq_components):
 
 def do_tsne_on_vectors(vectors, neuron_names, labels=None):
     tsne = TSNE(n_components=2, n_iter=1000, perplexity=3)
+    for i, vector in enumerate(vectors):
+        for j, metric in enumerate(vector):
+            if metric is None:
+                vectors[i, j] = 0
     tsne_results = tsne.fit_transform(vectors)
 
     tpd = {}
@@ -118,9 +122,30 @@ def do_tsne_on_kdfs(kdfs, neuron_names, labels=None):
 def knn_on_metrics(vectors):
     ifc = [vector[1] for vector in vectors]
     finitial = [vector[2] for vector in vectors]
-    nbrs = KMeans(n_clusters=4).fit([[f, ifc_v] for f, ifc_v in zip(finitial, ifc)])
-    labels = nbrs.labels_
-    return labels
+
+    ifc_subset = []
+    finitial_subset = []
+    labels_full = [None for i in range(len(ifc))]
+    for i, ifcc, finit in zip(range(len(ifc)), ifc, finitial):
+        if ifcc >= 40:
+            labels_full[i] = 3
+        else:
+            ifc_subset.append(ifcc)
+            finitial_subset.append(finit)
+
+    nbrs = KMeans(n_clusters=3).fit([[f, ifc_v] for f, ifc_v in zip(finitial_subset, ifc_subset)])
+
+    labels_new = nbrs.labels_
+
+    i = 0
+    for j, l in enumerate(labels_full):
+        if l is None:
+            labels_full[j] = labels_new[i]
+            i += 1
+        else:
+            pass
+
+    return labels_full
 
 
 def agglomerative_clustering_on_vectors(response_vectors):

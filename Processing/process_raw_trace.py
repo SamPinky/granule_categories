@@ -27,7 +27,7 @@ def get_all_isis(abf_objects):
     return isis
 
 
-def get_spike_times_for_cc(abfdata, sweep_num, refrac=0.015):
+def get_spike_times_for_cc(abfdata, sweep_num, refrac=0.015, cleanup=True):
     spike_times = []
     for channel in range(abfdata.channelCount):
         abfdata.setSweep(sweep_num, channel=channel)
@@ -35,6 +35,10 @@ def get_spike_times_for_cc(abfdata, sweep_num, refrac=0.015):
         peaks, _ = find_peaks(abfdata.sweepY, height=max(thresholds))
         spike_times = spike_times + [abfdata.sweepX[point] for point in peaks]
     spike_times = sorted(spike_times)
+
+    if not cleanup:
+        return spike_times
+
     for p in range(10):
         to_remove = []
         next_pass = True

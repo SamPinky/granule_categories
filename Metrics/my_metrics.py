@@ -22,7 +22,7 @@ def calculate_sfc(abf_objs):
         for sweep in range(obj.sweepCount):
             obj.setSweep(sweep)
             spikes = get_spike_times_for_epsp(obj)
-            spikes = [spike for spike in spikes if 0.5 <= spike < 0.75]
+            spikes = [spike for spike in spikes if 0.6 <= spike < 0.85]
             fresp.append(len(spikes)/0.25)
     fresp = np.mean(fresp)
     return ((fresp-50)/50) * 100
@@ -36,9 +36,9 @@ def calculate_ifc(abf_objs):
     # At 10pa
     for obj in abf_objs:
         spikes = get_spike_times_for_cc(obj, 9)
-        f_initial = len([spike for spike in spikes if spike <= 0.5]) / 0.5
-        f_final = len([spike for spike in spikes if 1.5 < spike]) / 0.5
-        if "Subject13" in obj.abfFolderPath.split("/")[-1]:
+        f_initial = len([spike for spike in spikes if spike <= 0.6]) / 0.5
+        f_final = len([spike for spike in spikes if 1.6 < spike]) / 0.5
+        if "Subject18" in obj.abfFolderPath.split("/")[-1]:
             x = True
         if f_initial > 0:
             ifc += ((f_final - f_initial) / f_initial) * 100
@@ -77,13 +77,70 @@ def fit_linear(points):
     return m, c, e
 
 
+def get_tau(kdf, x_d):
+    peak = max(kdf)
+    for point, t in zip(kdf, x_d):
+        if point > peak * 2/3:
+            return t
+    print("Problem")
+    return 1
+
+
+def sort_objects_by_neuron(cc_objects, epsp_objects):
+    subjects = set([obj.abfFolderPath.split("/")[-1] for obj in epsp_objects + cc_objects])
+    neuron_names = []
+    neurons = []
+    for subject in subjects:
+        subject_files = []
+        for obj in cc_objects:
+            if obj.abfFolderPath.split("/")[-1] == subject:
+                subject_files.append(obj)
+        for obj in epsp_objects:
+            if obj.abfFolderPath.split("/")[-1] == subject:
+                subject_files.append(obj)
+
+        subject_neurons = []
+        a_neurons = []
+        b_neurons = []
+        for file in subject_files:
+            if "-A" not in file.abfFilePath.split("/")[-1] and "-B" not in file.abfFilePath.split("/")[-1]:
+                subject_neurons.append(subject_files)
+                break
+            elif "-A" in file.abfFilePath.split("/")[-1]:
+                a_neurons.append(file)
+            elif "-B" in file.abfFilePath.split("/")[-1]:
+                b_neurons.append(file)
+            else:
+                print("PROBLEM")
+        if len(subject_neurons) > 0:
+            neurons.append(subject_neurons)
+            neuron_names.append(subject)
+        if len(a_neurons) > 0:
+            neurons.append(a_neurons)
+            neuron_names.append(subject + "A")
+        if len(b_neurons) > 0:
+            neurons.append(b_neurons)
+            neuron_names.append(subject + "B")
+
+    new_neurons = []
+    for neuron in neurons:
+        all_files = []
+        for item in neuron:
+            if isinstance(item, list):
+                all_files = all_files + item
+            else:
+                all_files.append(item)
+        new_neurons.append(all_files)
+    return neuron_names, new_neurons
+
+
 def compute_neuron_vectors(cc_objects, epsp_objects):
-    neuron_names = set([obj.abfFolderPath.split("/")[-1] for obj in epsp_objects + cc_objects])
+    neuron_names, neurons = sort_objects_by_neuron(cc_objects, epsp_objects)
     vectors = []
-    for neuron in neuron_names:
+    for n, neuron in enumerate(neurons):
         vector = []
-        sub_cc = [obj for obj in cc_objects if neuron in obj.abfFolderPath]
-        sub_epsp = [obj for obj in cc_objects if neuron in obj.abfFolderPath]
+        sub_cc = [obj for obj in neuron if "CC step" in obj.abfFilePath]
+        sub_epsp = [obj for obj in neuron if "EPSP" in obj.abfFilePath]
 
         vector.append(calculate_sfc(sub_epsp))
         ifc, f_initial = calculate_ifc(sub_cc)
@@ -98,6 +155,7 @@ def compute_neuron_vectors(cc_objects, epsp_objects):
             m = 0
             c = 0
             e = 0
+            tau = 0
             for obj in sub_cc:
                 spikes = get_spike_times_for_cc(obj, 9)
                 if len(spikes) == 0:
@@ -122,6 +180,8 @@ def compute_neuron_vectors(cc_objects, epsp_objects):
                     m += new_m
                     c += new_c
                     e += new_e
+                    tau += get_tau(kdf, x_d)
+
             vector.append(B/len(sub_cc))
             vector.append(B_frac/len(sub_cc))
             vector.append(max_v/len(sub_cc))
@@ -130,6 +190,7 @@ def compute_neuron_vectors(cc_objects, epsp_objects):
             vector.append(m/len(sub_cc))
             vector.append(c/len(sub_cc))
             vector.append(e/len(sub_cc))
+            vector.append(tau/len(sub_cc))
         else:
             vector.append(None)
             vector.append(None)
@@ -139,6 +200,6 @@ def compute_neuron_vectors(cc_objects, epsp_objects):
             vector.append(None)
             vector.append(None)
             vector.append(None)
+            vector.append(None)
         vectors.append(vector)
-        # TODO: Normalise vector
     return np.array(vectors), neuron_names

@@ -12,13 +12,13 @@ def calculate_spike_rate(spike_times, bin_size=0.5):
     return rate_values
 
 
-def get_all_spike_rates(abf_objects):
+def get_all_spike_rates(abf_objects, bin_size=0.5):
     spike_rates = []
     for abf_ob in abf_objects:
         sweep_data = get_all_sweep_data(abf_ob)
         for sweep in sweep_data:
             sweep = get_spike_times_for_trace(sweep)
-            rate = calculate_spike_rate(sweep)
+            rate = calculate_spike_rate(sweep, bin_size)
             spike_rates.append(rate)
     return spike_rates
 
