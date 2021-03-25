@@ -64,7 +64,7 @@ def plot_all_psth(abf_objects, function=False):
         # for j in range(i.sweepCount):
         #     i.setSweep(j)
         #     neuron_spikes = neuron_spikes + get_spike_times_for_cc(i, j)
-        neuron_spikes = get_spike_times_for_cc(i, 8)
+        neuron_spikes = get_spike_times_for_cc(i, 9)
         if len(neuron_spikes) > 1:
             create_psth(neuron_spikes, function)
 

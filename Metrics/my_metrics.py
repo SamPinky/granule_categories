@@ -16,7 +16,7 @@ def drange(x, y, jump):
 
 def calculate_sfc(abf_objs):
     if len(abf_objs) == 0:
-        return None
+        return 0
     fresp = []
     for obj in abf_objs:
         for sweep in range(obj.sweepCount):
@@ -162,12 +162,11 @@ def compute_neuron_vectors(cc_objects, epsp_objects):
                     pass
                 else:
                     obj.setSweep(9)
-                    kdf = calculate_spike_rate_kernel_smoothing(spikes)
+                    kdf = calculate_spike_rate_kernel_smoothing(spikes, max(obj.sweepX))
                     x_d = np.linspace(0, max(obj.sweepX), 1000)
                     indexes = range(1000)
-
-                    B += min(kdf[100:-100])
-                    B_frac += calculate_bfrac(x_d, kdf, min(kdf[100:-100]))
+                    B += min(kdf[100:-200])
+                    B_frac += calculate_bfrac(x_d, kdf, B)
                     max_v += max(kdf[100:-100])
                     mean += np.mean(kdf[100:-100])
                     median += np.median(kdf[100:-100])
@@ -182,24 +181,47 @@ def compute_neuron_vectors(cc_objects, epsp_objects):
                     e += new_e
                     tau += get_tau(kdf, x_d)
 
-            vector.append(B/len(sub_cc))
+            # vector.append(B/len(sub_cc))
             vector.append(B_frac/len(sub_cc))
             vector.append(max_v/len(sub_cc))
             vector.append(mean/len(sub_cc))
-            vector.append(median/len(sub_cc))
+            # vector.append(median/len(sub_cc))
             vector.append(m/len(sub_cc))
             vector.append(c/len(sub_cc))
-            vector.append(e/len(sub_cc))
+            # vector.append(e/len(sub_cc))
             vector.append(tau/len(sub_cc))
         else:
-            vector.append(None)
-            vector.append(None)
-            vector.append(None)
-            vector.append(None)
-            vector.append(None)
-            vector.append(None)
-            vector.append(None)
-            vector.append(None)
-            vector.append(None)
+            vector.append(0)
+            vector.append(0)
+            vector.append(0)
+            vector.append(0)
+            vector.append(0)
+            vector.append(0)
+            # vector.append(0)
+            # vector.append(0)
+            # vector.append(0)
         vectors.append(vector)
     return np.array(vectors), neuron_names
+
+
+def get_all_kdfs(cc_objects, epsp_objects):
+    neuron_names, neurons = sort_objects_by_neuron(cc_objects, epsp_objects)
+    kdfs = []
+    for n, neuron in enumerate(neurons):
+        kdf = []
+        sub_cc = [obj for obj in neuron if "CC step" in obj.abfFilePath]
+
+        if len(sub_cc) == 1:
+            for obj in sub_cc:
+                spikes = get_spike_times_for_cc(obj, 9)
+                if len(spikes) == 0:
+                    kdf = np.zeros(shape=(1000))
+                else:
+                    obj.setSweep(9)
+                    kdf = calculate_spike_rate_kernel_smoothing(spikes, max(obj.sweepX))
+        elif len(sub_cc) > 1:
+            print("Problemo")
+        else:
+            print("Double problemo")
+        kdfs.append(kdf)
+    return kdfs

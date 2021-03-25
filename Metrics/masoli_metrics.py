@@ -11,7 +11,7 @@ def calculate_all_metrics_for_epsp(abf_object):
         abf_object.setSweep(sweep)
         spike_t = spike_t + get_spike_times_for_cc(abf_object)
     if len(spike_t) > 1:
-        pdf = calculate_spike_rate_kernel_smoothing(spike_t)
+        pdf = calculate_spike_rate_kernel_smoothing(spike_t, max(obj.sweepX))
         return [calculate_ifc(pdf) * 100, calculate_sfc(pdf)]
     else:
         return None
@@ -30,7 +30,7 @@ def calculate_all_metrics_for_cc(abf_object):
         abf_object.setSweep(sweep)
         spike_t = spike_t + get_spike_times_for_cc(abf_object)
     if len(spike_t) > 1:
-        pdf = calculate_spike_rate_kernel_smoothing(spike_t)
+        pdf = calculate_spike_rate_kernel_smoothing(spike_t, max(obj.sweepX))
         return calculate_ifc(pdf) * 100
     else:
         return None
@@ -56,7 +56,7 @@ def get_f_initial(abf_objects):
             object.setSweep(sweep)
             spike_t = spike_t + get_spike_times_for_cc(object)
         if len(spike_t) > 1:
-            pdf = calculate_spike_rate_kernel_smoothing(spike_t)
+            pdf = calculate_spike_rate_kernel_smoothing(spike_t, max(obj.sweepX))
             results.append([np.mean(pdf[:500]), calculate_ifc(pdf) * 100])
     return results
 

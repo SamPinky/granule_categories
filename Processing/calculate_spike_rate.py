@@ -34,13 +34,17 @@ def get_all_spike_rates_epsp(abf_objects):
     return spike_rates
 
 
-def calculate_spike_rate_kernel_smoothing(spike_times):
+def calculate_spike_rate_kernel_smoothing(spike_times, end):
     if len(spike_times) == 0:
         return np.zeros(1000)
-    x_d = np.linspace(0, max(spike_times)+0.5, 1000)
+    x_d = np.linspace(0, end, 1000)
     spike_times = np.array(spike_times)
     model = KernelDensity(bandwidth=0.1, kernel='gaussian')
     model.fit(spike_times[:, None])
     log_dens = model.score_samples(x_d[:, None])
     whole_bin_spike_rate = len(spike_times)/2
     return np.exp(log_dens) * whole_bin_spike_rate
+
+
+
+
