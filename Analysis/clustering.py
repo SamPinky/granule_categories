@@ -3,9 +3,13 @@ from sklearn.manifold import TSNE
 import seaborn as sns
 from sklearn.cluster import KMeans, AgglomerativeClustering
 import numpy as np
+import pandas as pd
+from sklearn.metrics import silhouette_score
 
 from Processing.calculate_spike_rate import calculate_spike_rate_kernel_smoothing
 from Processing.process_raw_trace import get_spike_times_for_cc
+
+from Visualisation.metrics_plots import plot_metrics_against_clusters
 
 
 def get_frequency_components(abf_objects):
@@ -129,8 +133,16 @@ def knn_on_ifc_initial(vectors):
             ifc_subset.append(ifcc)
             finitial_subset.append(finit)
 
-    nbrs = KMeans(n_clusters=3).fit([[f, ifc_v] for f, ifc_v in zip(finitial_subset, ifc_subset)])
+    # Finidng optimal cluster num
+    sil = []
+    for i in range(2, 5):
+        nbrs = KMeans(n_clusters=i).fit([[f, ifc_v] for f, ifc_v in zip(finitial_subset, ifc_subset)])
+        labels_new = nbrs.labels_
+        sil.append(silhouette_score([[f, ifc_v] for f, ifc_v in zip(finitial_subset, ifc_subset)], labels_new, metric='euclidean'))
 
+    # Doing this number of clusters
+    optimal_num = sil.index(min(sil)) + 1
+    nbrs = KMeans(n_clusters=optimal_num).fit([[f, ifc_v] for f, ifc_v in zip(finitial_subset, ifc_subset)])
     labels_new = nbrs.labels_
 
     i = 0
@@ -139,48 +151,86 @@ def knn_on_ifc_initial(vectors):
             labels_full[j] = labels_new[i]
             i += 1
         else:
-            pass
+            labels_full[j] = max(labels_new) + 1
     return labels_full
 
 
-def knn_on_strong_weak(vectors):
-    max_v = [vector[5] for vector in vectors]
-    mean = [vector[6] for vector in vectors]
-    c = [vector[9] for vector in vectors]
+def knn_on_strong_weak(response_vectors):
+    max_v = [vector[4] for vector in response_vectors]
+    mean = [vector[5] for vector in response_vectors]
+    c = [vector[7] for vector in response_vectors]
 
-    nbrs = KMeans(n_clusters=3).fit([[mx, mn, cc] for mx, mn, cc in zip(max_v, mean, c)])
+    # Finidng optimal cluster num
+    sil = []
+    for i in range(2, 5):
+        nbrs = KMeans(n_clusters=i).fit([[mx, mn, cc] for mx, mn, cc in zip(max_v, mean, c)])
+        labels = nbrs.labels_
+        sil.append(silhouette_score([[mx, mn, cc] for mx, mn, cc in zip(max_v, mean, c)], labels,
+                                    metric='euclidean'))
 
+    # Doing this number of clusters
+    optimal_num = sil.index(min(sil)) + 2
+    nbrs = KMeans(n_clusters=optimal_num).fit([[mx, mn, cc] for mx, mn, cc in zip(max_v, mean, c)])
     labels = nbrs.labels_
+
     return labels
 
 
-def knn_on_slow_fast_onset(vectors):
-    ifc = [vector[1] for vector in vectors]
-    B_frac = [vector[4] for vector in vectors]
-    m = [vector[8] for vector in vectors]
-    tau = [vector[11] for vector in vectors]
+def knn_on_slow_fast_onset(response_vectors):
+    B_frac = [vector[3] for vector in response_vectors]
+    m = [vector[6] for vector in response_vectors]
+    tau = [vector[8] for vector in response_vectors]
 
-    nbrs = KMeans(n_clusters=3).fit([[ifcc, bf, mm, t] for ifcc, bf, mm, t in zip(ifc, B_frac, m, tau)])
 
+    sil = []
+    for i in range(2, 5):
+        nbrs = KMeans(n_clusters=i).fit([[bf, mm, t] for bf, mm, t in zip(B_frac, m, tau)])
+        labels = nbrs.labels_
+        sil.append(silhouette_score([[bf, mm, t] for bf, mm, t in zip(B_frac, m, tau)], labels,
+                                    metric='euclidean'))
+
+    # Doing this number of clusters
+    optimal_num = sil.index(min(sil)) + 2
+    nbrs = KMeans(n_clusters=optimal_num).fit([[bf, mm, t] for bf, mm, t in zip(B_frac, m, tau)])
     labels = nbrs.labels_
+
     return labels
 
 
-def knn_on_slow_fast_adapt_accel(vectors):
-    B_frac = [vector[4] for vector in vectors]
-    m = [vector[8] for vector in vectors]
-    c = [vector[9] for vector in vectors]
+def knn_on_slow_fast_adapt_accel(response_vectors):
+    B_frac = [vector[3] for vector in response_vectors]
+    m = [vector[6] for vector in response_vectors]
+    c = [vector[7] for vector in response_vectors]
 
-    nbrs = KMeans(n_clusters=3).fit([[bf, mm, cc] for bf, mm, cc in zip(B_frac, m, c)])
+    sil = []
+    for i in range(2, 5):
+        nbrs = KMeans(n_clusters=i).fit([[bf, mm, cc] for bf, mm, cc in zip(B_frac, m, c)])
+        labels = nbrs.labels_
+        sil.append(silhouette_score([[bf, mm, cc] for bf, mm, cc in zip(B_frac, m, c)], labels,
+                                    metric='euclidean'))
 
+    # Doing this number of clusters
+    optimal_num = sil.index(min(sil)) + 2
+    nbrs = KMeans(n_clusters=optimal_num).fit([[bf, mm, cc] for bf, mm, cc in zip(B_frac, m, c)])
     labels = nbrs.labels_
+
     return labels
 
 
 def knn_full_response_vector(vectors):
     vectors = np.delete(vectors, 0, 1)
-    nbrs = KMeans(n_clusters=3).fit(vectors)
+
+    sil = []
+    for i in range(2, 5):
+        nbrs = KMeans(n_clusters=i).fit(vectors)
+        labels = nbrs.labels_
+        sil.append(silhouette_score(vectors, labels, metric='euclidean'))
+
+    # Doing this number of clusters
+    optimal_num = sil.index(min(sil))
+    nbrs = KMeans(n_clusters=optimal_num).fit(vectors)
     labels = nbrs.labels_
+
     return labels
 
 
@@ -190,3 +240,20 @@ def agglomerative_clustering_on_vectors(response_vectors):
     data = [[fin, ifcc] for fin, ifcc in zip(finitial, ifc)]
     aggl = AgglomerativeClustering(distance_threshold=0, n_clusters=None).fit(data)
     return aggl
+
+
+def all_clusters(vectors, neuron_names):
+    labels1 = knn_on_ifc_initial(vectors)
+    plot_metrics_against_clusters(vectors, neuron_names, labels1, "KNN Adapt-Accel")
+
+    labels2 = knn_on_strong_weak(vectors)
+    plot_metrics_against_clusters(vectors, neuron_names, labels2, "KNN Strong vs Weak")
+
+    labels3 = knn_on_slow_fast_onset(vectors)
+    plot_metrics_against_clusters(vectors, neuron_names, labels3, "KNN Slow vs Fast Onset")
+
+    labels4 = knn_on_slow_fast_adapt_accel(vectors)
+    plot_metrics_against_clusters(vectors, neuron_names, labels4, "KNN Slow vs Fast Adapt-Accel")
+    results = pd.DataFrame([labels1, labels2, labels3, labels4], columns=neuron_names)
+    return results
+

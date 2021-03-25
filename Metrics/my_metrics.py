@@ -74,7 +74,7 @@ def fit_linear(points):
     e = model.score(x, y)
     m = model.coef_
     c = model.intercept_
-    return m, c, e
+    return m[0], c, e
 
 
 def get_tau(kdf, x_d):
