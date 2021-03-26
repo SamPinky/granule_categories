@@ -67,7 +67,7 @@ def tsne_on_full_vector(vectors, neuron_names, labels=None):
 
     tpd['tsne-2d-one'] = tsne_results[:, 0]
     tpd['tsne-2d-two'] = tsne_results[:, 1]
-    plt.figure(figsize=(8, 5))
+    plt.figure(figsize=(16, 10))
 
     if labels is not None:
         p1 = sns.scatterplot(
@@ -85,6 +85,11 @@ def tsne_on_full_vector(vectors, neuron_names, labels=None):
             legend="full",
             alpha=1
         )
+    if neuron_names is not None:
+        for line in range(len(vectors)):
+            p1.text(tpd['tsne-2d-one'][line] + 0.01, tpd['tsne-2d-two'][line],
+                    neuron_names[line], horizontalalignment='left',
+                    size='small', color='black', weight='bold')
     plt.show()
     return tpd
 
@@ -97,7 +102,7 @@ def do_tsne_on_kdfs(kdfs, neuron_names, labels=None):
 
     tpd['tsne-2d-one'] = tsne_results[:, 0]
     tpd['tsne-2d-two'] = tsne_results[:, 1]
-    plt.figure(figsize=(8, 5))
+    plt.figure(figsize=(16, 10))
     plt.title(f"T-SNE results on KDFs")
 
     if labels is not None:
@@ -116,6 +121,10 @@ def do_tsne_on_kdfs(kdfs, neuron_names, labels=None):
             legend="full",
             alpha=1
         )
+    for line in range(len(kdfs)):
+        p1.text(tpd['tsne-2d-one'][line] + 0.01, tpd['tsne-2d-two'][line],
+                neuron_names[line], horizontalalignment='left',
+                size='small', color='black', weight='bold')
     plt.show()
 
 
@@ -158,29 +167,48 @@ def knn_on_ifc_initial(vectors):
 def knn_on_strong_weak(response_vectors):
     max_v = [vector[4] for vector in response_vectors]
     mean = [vector[5] for vector in response_vectors]
-    c = [vector[7] for vector in response_vectors]
+    B_frac = [vector[3] for vector in response_vectors]
 
     # Finidng optimal cluster num
     sil = []
     for i in range(2, 5):
-        nbrs = KMeans(n_clusters=i).fit([[mx, mn, cc] for mx, mn, cc in zip(max_v, mean, c)])
+        nbrs = KMeans(n_clusters=i).fit([[mx, mn, bf] for mx, mn, bf in zip(max_v, mean, B_frac)])
         labels = nbrs.labels_
-        sil.append(silhouette_score([[mx, mn, cc] for mx, mn, cc in zip(max_v, mean, c)], labels,
+        sil.append(silhouette_score([[mx, mn, bf] for mx, mn, bf in zip(max_v, mean, B_frac)], labels,
                                     metric='euclidean'))
 
     # Doing this number of clusters
     optimal_num = sil.index(min(sil)) + 2
-    nbrs = KMeans(n_clusters=optimal_num).fit([[mx, mn, cc] for mx, mn, cc in zip(max_v, mean, c)])
+    nbrs = KMeans(n_clusters=optimal_num).fit([[mx, mn, bf] for mx, mn, bf in zip(max_v, mean, B_frac)])
     labels = nbrs.labels_
 
     return labels
 
 
 def knn_on_slow_fast_onset(response_vectors):
+    m = [vector[6] for vector in response_vectors]
+    tau = [vector[8] for vector in response_vectors]
+    c = [vector[7] for vector in response_vectors]
+
+    sil = []
+    for i in range(2, 5):
+        nbrs = KMeans(n_clusters=i).fit([[cc, mm, t] for cc, mm, t in zip(c, m, tau)])
+        labels = nbrs.labels_
+        sil.append(silhouette_score([[cc, mm, t] for cc, mm, t in zip(c, m, tau)], labels,
+                                    metric='euclidean'))
+
+    # Doing this number of clusters
+    optimal_num = sil.index(min(sil)) + 2
+    nbrs = KMeans(n_clusters=optimal_num).fit([[cc, mm, t] for cc, mm, t in zip(c, m, tau)])
+    labels = nbrs.labels_
+
+    return labels
+
+
+def knn_on_slow_fast_adapt_accel(response_vectors):
     B_frac = [vector[3] for vector in response_vectors]
     m = [vector[6] for vector in response_vectors]
     tau = [vector[8] for vector in response_vectors]
-
 
     sil = []
     for i in range(2, 5):
@@ -192,26 +220,6 @@ def knn_on_slow_fast_onset(response_vectors):
     # Doing this number of clusters
     optimal_num = sil.index(min(sil)) + 2
     nbrs = KMeans(n_clusters=optimal_num).fit([[bf, mm, t] for bf, mm, t in zip(B_frac, m, tau)])
-    labels = nbrs.labels_
-
-    return labels
-
-
-def knn_on_slow_fast_adapt_accel(response_vectors):
-    B_frac = [vector[3] for vector in response_vectors]
-    m = [vector[6] for vector in response_vectors]
-    c = [vector[7] for vector in response_vectors]
-
-    sil = []
-    for i in range(2, 5):
-        nbrs = KMeans(n_clusters=i).fit([[bf, mm, cc] for bf, mm, cc in zip(B_frac, m, c)])
-        labels = nbrs.labels_
-        sil.append(silhouette_score([[bf, mm, cc] for bf, mm, cc in zip(B_frac, m, c)], labels,
-                                    metric='euclidean'))
-
-    # Doing this number of clusters
-    optimal_num = sil.index(min(sil)) + 2
-    nbrs = KMeans(n_clusters=optimal_num).fit([[bf, mm, cc] for bf, mm, cc in zip(B_frac, m, c)])
     labels = nbrs.labels_
 
     return labels

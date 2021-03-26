@@ -36,19 +36,31 @@ from Visualisation.metrics_plots import plot_masoli_metrics, plot_metrics_agains
 # # Without cleanup cleanup steps
 # check_isi_normality(cc, True, False)
 
-
 # Clustering of metrics and kdfs, as well as original clustering.
+# plot_all_psth(load_all_cc_data(), True)
 data = load_all_cc_data()
 vectors, neurons = compute_neuron_vectors(data, load_all_epsp_data())
 
 neurons = list(neurons)
 
+clusters = all_clusters(vectors, neurons)
+
+# clusters.to_csv("clusters.csv")
+new_clusters = [str(clusters.iloc[0, i]) + str(clusters.iloc[1, i]) + str(clusters.iloc[2, i]) for i in range(len(clusters.columns))]
+
+tsne_on_full_vector(vectors, None, new_clusters)
+
+# kdfs = get_all_kdfs(data, load_all_epsp_data())
+# labels = knn_on_ifc_initial(vectors)
+#
+# tsne_on_full_vector(vectors, neurons, labels)
+# do_tsne_on_kdfs(kdfs, neurons, labels)
+
+x = True
+
 # Original groups
 labels = knn_on_ifc_initial(vectors)
-vectors1 = np.array([[vector[1], vector[2]] for vector in vectors])
 print("Original groups")
-do_manova_on_groups(vectors1, labels)
-
 # with ANOVA
 vectors1 = np.array([vector[1] for vector in vectors])
 do_anova_on_groups(vectors1, labels)
@@ -57,11 +69,7 @@ do_kruskal_wallis_test(vectors1, labels)
 
 # Strong-weak
 labels = knn_on_strong_weak(vectors)
-vectors2 = np.array([[vector[4], vector[5], vector[7]] for vector in vectors])
 print("Strong-weak")
-do_manova_on_groups(vectors2, labels)
-
-# with ANOVA
 vectors2 = np.array([vector[5] for vector in vectors])
 do_anova_on_groups(vectors2, labels)
 do_kruskal_wallis_test(vectors2, labels)
@@ -69,23 +77,15 @@ do_kruskal_wallis_test(vectors2, labels)
 
 # Slow-fast-onset
 labels = knn_on_slow_fast_onset(vectors)
-vectors3 = np.array([[vector[3], vector[6], vector[8]] for vector in vectors])
 print("Slow-fast-onset")
-do_manova_on_groups(vectors3, labels)
-
-# with ANOVA
-vectors3 = np.array([vector[8] for vector in vectors])
+vectors3 = np.array([vector[6] for vector in vectors])
 do_anova_on_groups(vectors3, labels)
 do_kruskal_wallis_test(vectors3, labels)
 
 
 # slow-fast effects
 labels = knn_on_slow_fast_adapt_accel(vectors)
-vectors4 = np.array([[vector[3], vector[6], vector[7]] for vector in vectors])
 print("slow-fast effects")
-do_manova_on_groups(vectors4, labels)
-
-# with ANOVA
 vectors4 = np.array([vector[6] for vector in vectors])
 do_anova_on_groups(vectors4, labels)
 do_kruskal_wallis_test(vectors4, labels)
@@ -106,17 +106,12 @@ do_kruskal_wallis_test(vectors4, labels)
 #
 
 
-# kdfs = get_all_kdfs(data, load_all_epsp_data())
 # do_tsne_on_kdfs(kdfs, neurons, labels1)
 
 # aggl = agglomerative_clustering_on_vectors(vectors)
 # labels_2 = aggl.labels_
 #
-# results_1 = do_tsne_on_vectors(vectors, neurons, labels)
-# results_2 = do_tsne_on_vectors(vectors, neurons, labels_2)
 
-
-# do_tsne_on_kdfs(raw_kdfs, neuron_names, labels)
 
 # plot_dendrogram(aggl)
 #

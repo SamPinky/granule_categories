@@ -32,10 +32,11 @@ def fit_linear(points):
     return m, c, e
 
 
-def create_psth(spike_times, function=False):
+def create_psth(spike_times, end, function=False, name=None):
     x_d = np.linspace(0, max(spike_times)+0.5, 1000)
-    dens = calculate_spike_rate_kernel_smoothing(spike_times)
+    dens = calculate_spike_rate_kernel_smoothing(spike_times, end)
     plt.fill_between(x_d, dens)
+    plt.title(name)
     plt.plot(spike_times, np.full_like(spike_times, -0.1), '|k', markeredgewidth=1)
     if function:
         indexes = range(1000)
@@ -49,7 +50,7 @@ def create_psth(spike_times, function=False):
         else:
             return
         plt.plot(x_d, y, "g")
-        plt.title(f"{len(maxima)}, m={new_b}, c={new_c}")
+        plt.title(f"{name}, Maxima: {len(maxima)}, m={new_b}, c={new_c}")
     plt.show()
 
 
@@ -66,5 +67,5 @@ def plot_all_psth(abf_objects, function=False):
         #     neuron_spikes = neuron_spikes + get_spike_times_for_cc(i, j)
         neuron_spikes = get_spike_times_for_cc(i, 9)
         if len(neuron_spikes) > 1:
-            create_psth(neuron_spikes, function)
+            create_psth(neuron_spikes, max(i.sweepX), function, i.abfFolderPath.split("/")[-1])
 

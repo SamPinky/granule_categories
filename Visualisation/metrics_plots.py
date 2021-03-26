@@ -37,7 +37,7 @@ def plot_metrics_against_clusters(response_vectors, neurons, labels, clustering_
 
     new_m = []
     for v in m:
-        if type(v) is float:
+        if type(v) is float or np.float64:
             new_m.append(v)
         else:
             new_m.append(v[0])

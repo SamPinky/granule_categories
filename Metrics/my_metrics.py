@@ -186,7 +186,10 @@ def compute_neuron_vectors(cc_objects, epsp_objects):
             vector.append(max_v/len(sub_cc))
             vector.append(mean/len(sub_cc))
             # vector.append(median/len(sub_cc))
-            vector.append(m/len(sub_cc))
+            if (mean/len(sub_cc)) != 0:
+                vector.append((m/len(sub_cc))/(mean/len(sub_cc)))
+            else:
+                vector.append(0)
             vector.append(c/len(sub_cc))
             # vector.append(e/len(sub_cc))
             vector.append(tau/len(sub_cc))
