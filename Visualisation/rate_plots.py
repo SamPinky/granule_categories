@@ -33,7 +33,8 @@ def fit_linear(points):
 
 
 def create_psth(spike_times, end, function=False, name=None):
-    x_d = np.linspace(0, max(spike_times)+0.5, 1000)
+    # x_d = np.linspace(0, max(spike_times)+0.5, 1000)
+    x_d = np.linspace(0, end, 1000)
     dens = calculate_spike_rate_kernel_smoothing(spike_times, end)
     plt.fill_between(x_d, dens)
     plt.title(name)

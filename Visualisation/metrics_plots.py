@@ -43,9 +43,9 @@ def plot_metrics_against_clusters(response_vectors, neurons, labels, clustering_
             new_m.append(v[0])
     m = new_m
 
-    fig, axs = plt.subplots(4, 4, sharex=False)
+    fig, axs = plt.subplots(3, 3, sharex=False)
     fig.suptitle(f"Clustering type: {clustering_type}", fontsize=30)
-    fig.set_size_inches(24, 20)
+    fig.set_size_inches(18, 13.3)
 
     # Original dimension
     axs[0, 0].set_ylabel("IFC (%)", size=15)
@@ -57,55 +57,36 @@ def plot_metrics_against_clusters(response_vectors, neurons, labels, clustering_
     sns.scatterplot(ax=axs[0, 1], x=sfc, y=ifc, palette=sns.color_palette("hls", len(set(labels))), hue=labels)
 
     axs[0, 2].set_ylabel("IFC (%)", size=15)
-    axs[0, 2].set_xlabel("m (Hzs-1)", size=15)
-    sns.scatterplot(ax=axs[0, 2], x=m, y=ifc, palette=sns.color_palette("hls", len(set(labels))), hue=labels)
+    axs[0, 2].set_xlabel("B_fraction", size=15)
+    sns.scatterplot(ax=axs[0, 2], x=m, y=B_frac, palette=sns.color_palette("hls", len(set(labels))), hue=labels)
 
-    axs[0, 3].set_ylabel("IFC (%)", size=15)
-    axs[0, 3].set_xlabel("B frac", size=15)
-    sns.scatterplot(ax=axs[0, 3], x=B_frac, y=ifc, palette=sns.color_palette("hls", len(set(labels))), hue=labels)
 
     # Strong-weak
-    axs[1, 0].set_ylabel("IFC (%)", size=15)
+    axs[1, 0].set_ylabel("mean (Hz)", size=15)
     axs[1, 0].set_xlabel("max (Hz)", size=15)
-    sns.scatterplot(ax=axs[1, 0], x=max_v, y=ifc, palette=sns.color_palette("hls", len(set(labels))), hue=labels)
+    sns.scatterplot(ax=axs[1, 0], x=max_v, y=mean, palette=sns.color_palette("hls", len(set(labels))), hue=labels)
 
     axs[1, 1].set_ylabel("mean (Hz)", size=15)
-    axs[1, 1].set_xlabel("max (Hz)", size=15)
-    sns.scatterplot(ax=axs[1, 1], x=max_v, y=mean, palette=sns.color_palette("hls", len(set(labels))), hue=labels)
+    axs[1, 1].set_xlabel("B_fraction", size=15)
+    sns.scatterplot(ax=axs[1, 1], x=B_frac, y=mean, palette=sns.color_palette("hls", len(set(labels))), hue=labels)
 
-    axs[1, 2].set_ylabel("c (Hz)", size=15)
-    axs[1, 2].set_xlabel("max (Hz)", size=15)
+    axs[1, 2].set_ylabel("B_fraction", size=15)
+    axs[1, 2].set_xlabel("m (Hzs-1)", size=15)
     sns.scatterplot(ax=axs[1, 2], x=max_v, y=c, palette=sns.color_palette("hls", len(set(labels))), hue=labels)
 
-    axs[1, 3].set_ylabel("c (Hz)", size=15)
-    axs[1, 3].set_xlabel("mean (Hz)", size=15)
-    sns.scatterplot(ax=axs[1, 3], x=mean, y=c, palette=sns.color_palette("hls", len(set(labels))), hue=labels)
 
     # Slow-Fast Onset
     axs[2, 0].set_ylabel("Tau (s)", size=15)
-    axs[2, 0].set_xlabel("IFC (%)", size=15)
-    sns.scatterplot(ax=axs[2, 0], x=ifc, y=tau, palette=sns.color_palette("hls", len(set(labels))), hue=labels)
+    axs[2, 0].set_xlabel("c (Hz)", size=15)
+    sns.scatterplot(ax=axs[2, 0], x=c, y=tau, palette=sns.color_palette("hls", len(set(labels))), hue=labels)
 
     axs[2, 1].set_ylabel("Tau (s)", size=15)
     axs[2, 1].set_xlabel("m (Hzs-1)", size=15)
     sns.scatterplot(ax=axs[2, 1], x=m, y=tau, palette=sns.color_palette("hls", len(set(labels))), hue=labels)
 
-    axs[2, 2].set_ylabel("Tau (s)", size=15)
-    axs[2, 2].set_xlabel("B Frac", size=15)
-    sns.scatterplot(ax=axs[2, 2], x=B_frac, y=tau, palette=sns.color_palette("hls", len(set(labels))), hue=labels)
-
-    # Slow-Fast Adapt/Accel
-    axs[3, 0].set_ylabel("c (Hz)", size=15)
-    axs[3, 0].set_xlabel("m (Hzs-1)", size=15)
-    sns.scatterplot(ax=axs[3, 0], x=m, y=c, palette=sns.color_palette("hls", len(set(labels))), hue=labels)
-
-    axs[3, 1].set_ylabel("c (Hz)", size=15)
-    axs[3, 1].set_xlabel("B Frac", size=15)
-    sns.scatterplot(ax=axs[3, 1], x=B_frac, y=c, palette=sns.color_palette("hls", len(set(labels))), hue=labels)
-
-    axs[3, 2].set_ylabel("m (Hzs-1)", size=15)
-    axs[3, 2].set_xlabel("B Frac", size=15)
-    sns.scatterplot(ax=axs[3, 2], x=B_frac, y=m, palette=sns.color_palette("hls", len(set(labels))), hue=labels)
+    axs[2, 2].set_ylabel("B_fraction", size=15)
+    axs[2, 2].set_xlabel("Tau (s)", size=15)
+    sns.scatterplot(ax=axs[2, 2], x=tau, y=B_frac, palette=sns.color_palette("hls", len(set(labels))), hue=labels)
 
     plt.show()
 

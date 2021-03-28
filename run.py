@@ -14,14 +14,24 @@ from Metrics.masoli_metrics import do_masoli_analysis
 from Metrics.my_metrics import compute_neuron_vectors, get_all_kdfs
 
 from Visualisation.trace_plots import plot_all_abf_data
+from Visualisation.figures import figure_1, figure_2, figure_3, figure_5
 from Visualisation.rate_plots import plot_all_psth
 from Visualisation.metrics_plots import plot_masoli_metrics, plot_metrics_against_clusters, plot_dendrogram
+
+
+# Creating Figures
+# cc = load_data("../../Granule-Data/GrC_Subject15_180116/", "180116_0005 CC step.abf")
+# cc2 = load_data("../../Granule-Data/GrC_Subject01_010818/", "010818_0002 CC step.abf")
+# cc3 = load_data("../../Granule-Data/GrC_Subject23_250116/", "250116-A_0001 CC step.abf")
+# epsp = load_data("../../Granule-Data/GrC_Subject14_161115/", "161115_0007 EPSP.abf")
+# figure_1(cc2, epsp)
+# figure_3(cc3)
+
 
 
 # Checking for normality in cc and epsp
 # cc = load_all_cc_data()
 
-# plot_all_abf_data(cc)
 # epsp = load_all_epsp_data()
 #
 # check_whole_rate_normality(cc, True, True)
@@ -36,25 +46,30 @@ from Visualisation.metrics_plots import plot_masoli_metrics, plot_metrics_agains
 # # Without cleanup cleanup steps
 # check_isi_normality(cc, True, False)
 
+
+
+
 # Clustering of metrics and kdfs, as well as original clustering.
-# plot_all_psth(load_all_cc_data(), True)
 data = load_all_cc_data()
 vectors, neurons = compute_neuron_vectors(data, load_all_epsp_data())
 
 neurons = list(neurons)
 
+
 clusters = all_clusters(vectors, neurons)
+labels = [clusters.iloc[0, i] for i in range(len(clusters.columns))]
 
-# clusters.to_csv("clusters.csv")
 new_clusters = [str(clusters.iloc[0, i]) + str(clusters.iloc[1, i]) + str(clusters.iloc[2, i]) for i in range(len(clusters.columns))]
+figure_5(vectors, clusters)
+# clusters.to_csv("clusters.csv")
+kdfs = get_all_kdfs(data, load_all_epsp_data())
+tsne_on_full_vector(vectors, None, labels, new_clusters)
+do_tsne_on_kdfs(kdfs, None, labels)
 
-tsne_on_full_vector(vectors, None, new_clusters)
 
-# kdfs = get_all_kdfs(data, load_all_epsp_data())
-# labels = knn_on_ifc_initial(vectors)
+
 #
 # tsne_on_full_vector(vectors, neurons, labels)
-# do_tsne_on_kdfs(kdfs, neurons, labels)
 
 x = True
 

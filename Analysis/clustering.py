@@ -55,7 +55,7 @@ def do_tsne_on_ks(freq_components):
             plt.show()
 
 
-def tsne_on_full_vector(vectors, neuron_names, labels=None):
+def tsne_on_full_vector(vectors, neuron_names, labels=None, labels2=None):
     tsne = TSNE(n_components=2, n_iter=1000, perplexity=3)
     for i, vector in enumerate(vectors):
         for j, metric in enumerate(vector):
@@ -67,7 +67,7 @@ def tsne_on_full_vector(vectors, neuron_names, labels=None):
 
     tpd['tsne-2d-one'] = tsne_results[:, 0]
     tpd['tsne-2d-two'] = tsne_results[:, 1]
-    plt.figure(figsize=(16, 10))
+    plt.figure(figsize=(6, 6))
 
     if labels is not None:
         p1 = sns.scatterplot(
@@ -75,14 +75,14 @@ def tsne_on_full_vector(vectors, neuron_names, labels=None):
             hue=labels,
             palette=sns.color_palette("hls", len(set(labels))),
             data=tpd,
-            legend="full",
+            legend=True,
             alpha=1
         )
     else:
         p1 = sns.scatterplot(
             x="tsne-2d-one", y="tsne-2d-two",
             data=tpd,
-            legend="full",
+            legend=True,
             alpha=1
         )
     if neuron_names is not None:
@@ -91,6 +91,20 @@ def tsne_on_full_vector(vectors, neuron_names, labels=None):
                     neuron_names[line], horizontalalignment='left',
                     size='small', color='black', weight='bold')
     plt.show()
+    plt.figure(figsize=(6, 6))
+
+    if labels2 is not None:
+        p1 = sns.scatterplot(
+            x="tsne-2d-one", y="tsne-2d-two",
+            hue=labels2,
+            palette=sns.color_palette("hls", len(set(labels2))),
+            data=tpd,
+            alpha=1
+        )
+        plt.legend(bbox_to_anchor=(1.01, 1), borderaxespad=0)
+        plt.tight_layout()
+
+        plt.show()
     return tpd
 
 
@@ -102,7 +116,7 @@ def do_tsne_on_kdfs(kdfs, neuron_names, labels=None):
 
     tpd['tsne-2d-one'] = tsne_results[:, 0]
     tpd['tsne-2d-two'] = tsne_results[:, 1]
-    plt.figure(figsize=(16, 10))
+    plt.figure(figsize=(6, 6))
     plt.title(f"T-SNE results on KDFs")
 
     if labels is not None:
@@ -111,7 +125,7 @@ def do_tsne_on_kdfs(kdfs, neuron_names, labels=None):
             hue=labels,
             palette=sns.color_palette("hls", len(set(labels))),
             data=tpd,
-            legend="full",
+            legend="brief",
             alpha=1
         )
     else:
@@ -121,10 +135,10 @@ def do_tsne_on_kdfs(kdfs, neuron_names, labels=None):
             legend="full",
             alpha=1
         )
-    for line in range(len(kdfs)):
-        p1.text(tpd['tsne-2d-one'][line] + 0.01, tpd['tsne-2d-two'][line],
-                neuron_names[line], horizontalalignment='left',
-                size='small', color='black', weight='bold')
+    # for line in range(len(kdfs)):
+    #     p1.text(tpd['tsne-2d-one'][line] + 0.01, tpd['tsne-2d-two'][line],
+    #             neuron_names[line], horizontalalignment='left',
+    #             size='small', color='black', weight='bold')
     plt.show()
 
 
