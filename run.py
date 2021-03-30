@@ -5,7 +5,7 @@ from Processing.process_raw_trace import get_spike_times_for_cc
 from Processing.calculate_spike_rate import calculate_spike_rate_kernel_smoothing
 from Processing.data_checking import check_isi_normality, check_whole_rate_normality, check_metric_normality
 
-from Analysis.clustering import do_tsne_on_ks, get_frequency_components, tsne_on_full_vector, all_clusters, do_tsne_on_kdfs, knn_full_response_vector, knn_on_ifc_initial, agglomerative_clustering_on_vectors, knn_on_strong_weak, knn_on_slow_fast_onset, knn_on_slow_fast_adapt_accel
+from Analysis.clustering import get_frequency_components, tsne_on_full_vector, all_clusters, do_tsne_on_kdfs, knn_full_response_vector, knn_on_ifc_initial, agglomerative_clustering_on_vectors, knn_on_strong_weak, knn_on_slow_fast_onset, knn_on_slow_fast_adapt_accel
 from Analysis.statistics import do_manova_on_groups, do_anova_on_groups, do_kruskal_wallis_test
 
 
@@ -26,7 +26,6 @@ from Visualisation.metrics_plots import plot_masoli_metrics, plot_metrics_agains
 # epsp = load_data("../../Granule-Data/GrC_Subject14_161115/", "161115_0007 EPSP.abf")
 # figure_1(cc2, epsp)
 # figure_3(cc3)
-
 
 
 # Checking for normality in cc and epsp
@@ -54,24 +53,23 @@ data = load_all_cc_data()
 vectors, neurons = compute_neuron_vectors(data, load_all_epsp_data())
 
 neurons = list(neurons)
-
+check_metric_normality(vectors)
 
 clusters = all_clusters(vectors, neurons)
 labels = [clusters.iloc[0, i] for i in range(len(clusters.columns))]
 
 new_clusters = [str(clusters.iloc[0, i]) + str(clusters.iloc[1, i]) + str(clusters.iloc[2, i]) for i in range(len(clusters.columns))]
-figure_5(vectors, clusters)
+# figure_5(vectors, clusters)
 # clusters.to_csv("clusters.csv")
 kdfs = get_all_kdfs(data, load_all_epsp_data())
 tsne_on_full_vector(vectors, None, labels, new_clusters)
 do_tsne_on_kdfs(kdfs, None, labels)
 
+tsne_on_full_vector(vectors, neurons, labels, new_clusters)
 
 
 #
 # tsne_on_full_vector(vectors, neurons, labels)
-
-x = True
 
 # Original groups
 labels = knn_on_ifc_initial(vectors)

@@ -26,33 +26,29 @@ def get_frequency_components(abf_objects):
     return freq_components
 
 
-def do_tsne_on_ks(freq_components):
-    iters = [i for i in range(250, 1000, 250)]
-    perplexi = [i for i in range(50, 150, 50)]
-    for it in iters:
-        for p in perplexi:
-            tsne = TSNE(n_components=2, n_iter=it, perplexity=p)
-            tsne_results = tsne.fit_transform(freq_components)
-
-            tpd = {}
-
-            tpd['tsne-2d-one'] = tsne_results[:, 0]
-            tpd['tsne-2d-two'] = tsne_results[:, 1]
-            tpd['Point'] = ["Blue" for i in range(len(tsne_results[:, 0]))]
-            tpd["Point"][0] = "Red"
-            plt.figure(figsize=(16, 10))
-            plt.title(f"tsne results {it} {p}")
-
-            p1 = sns.scatterplot(
-                x="tsne-2d-one", y="tsne-2d-two",
-                # palette=sns.color_palette("hls", 10),
-                hue="Point",
-                # palette=sns.color_palette("hls"),
-                data=tpd,
-                legend="full",
-                alpha=0.3
-            )
-            plt.show()
+def calculate_distances_between_categories(tsne_ouput, categories):
+    distances = np.zeros(shape=(len(categories), len(categories)))
+    same_categories = np.zeros(shape=(len(categories), len(categories)))
+    for i, row in enumerate(distances):
+        for j, val in enumerate(row):
+            if categories[i] == categories[j]:
+                same_categories[i, j] = 1
+            distances[i, j] = ((tsne_ouput["tsne-2d-one"][i]-tsne_ouput["tsne-2d-one"][j])**2 + (tsne_ouput["tsne-2d-two"][i]-tsne_ouput["tsne-2d-two"][j])**2)**0.5
+    distances_between_categories = 0
+    distances_between_all = 0
+    num_sane_category = 0
+    for i, row in enumerate(distances):
+        for j, val in enumerate(row):
+            if j <= i:
+                pass
+            else:
+                if same_categories[i, j] == 1:
+                    num_sane_category += 1
+                    distances_between_categories += val
+                distances_between_all += val
+    print(f"Distances between categories = {distances_between_categories/num_sane_category}")
+    total_comparisons = ((len(categories)-1)/(len(categories)*2))*(len(categories)**2)
+    print(f"Distances between all = {distances_between_all/total_comparisons}")
 
 
 def tsne_on_full_vector(vectors, neuron_names, labels=None, labels2=None):
@@ -105,6 +101,10 @@ def tsne_on_full_vector(vectors, neuron_names, labels=None, labels2=None):
         plt.tight_layout()
 
         plt.show()
+    print("Original labels")
+    calculate_distances_between_categories(tsne_ouput=tpd, categories=labels)
+    print("New labels")
+    calculate_distances_between_categories(tsne_ouput=tpd, categories=labels2)
     return tpd
 
 
@@ -139,6 +139,8 @@ def do_tsne_on_kdfs(kdfs, neuron_names, labels=None):
     #     p1.text(tpd['tsne-2d-one'][line] + 0.01, tpd['tsne-2d-two'][line],
     #             neuron_names[line], horizontalalignment='left',
     #             size='small', color='black', weight='bold')
+    print("KDF labels")
+    calculate_distances_between_categories(tpd, labels)
     plt.show()
 
 
@@ -159,13 +161,13 @@ def knn_on_ifc_initial(vectors):
     # Finidng optimal cluster num
     sil = []
     for i in range(2, 5):
-        nbrs = KMeans(n_clusters=i).fit([[f, ifc_v] for f, ifc_v in zip(finitial_subset, ifc_subset)])
+        nbrs = KMeans(n_clusters=i, n_init=20).fit([[f, ifc_v] for f, ifc_v in zip(finitial_subset, ifc_subset)])
         labels_new = nbrs.labels_
         sil.append(silhouette_score([[f, ifc_v] for f, ifc_v in zip(finitial_subset, ifc_subset)], labels_new, metric='euclidean'))
 
     # Doing this number of clusters
     optimal_num = sil.index(min(sil)) + 1
-    nbrs = KMeans(n_clusters=optimal_num).fit([[f, ifc_v] for f, ifc_v in zip(finitial_subset, ifc_subset)])
+    nbrs = KMeans(n_clusters=optimal_num, n_init=20).fit([[f, ifc_v] for f, ifc_v in zip(finitial_subset, ifc_subset)])
     labels_new = nbrs.labels_
 
     i = 0
@@ -186,14 +188,14 @@ def knn_on_strong_weak(response_vectors):
     # Finidng optimal cluster num
     sil = []
     for i in range(2, 5):
-        nbrs = KMeans(n_clusters=i).fit([[mx, mn, bf] for mx, mn, bf in zip(max_v, mean, B_frac)])
+        nbrs = KMeans(n_clusters=i, n_init=20).fit([[mx, mn, bf] for mx, mn, bf in zip(max_v, mean, B_frac)])
         labels = nbrs.labels_
         sil.append(silhouette_score([[mx, mn, bf] for mx, mn, bf in zip(max_v, mean, B_frac)], labels,
                                     metric='euclidean'))
 
     # Doing this number of clusters
     optimal_num = sil.index(min(sil)) + 2
-    nbrs = KMeans(n_clusters=optimal_num).fit([[mx, mn, bf] for mx, mn, bf in zip(max_v, mean, B_frac)])
+    nbrs = KMeans(n_clusters=optimal_num, n_init=20).fit([[mx, mn, bf] for mx, mn, bf in zip(max_v, mean, B_frac)])
     labels = nbrs.labels_
 
     return labels
@@ -206,14 +208,14 @@ def knn_on_slow_fast_onset(response_vectors):
 
     sil = []
     for i in range(2, 5):
-        nbrs = KMeans(n_clusters=i).fit([[cc, mm, t] for cc, mm, t in zip(c, m, tau)])
+        nbrs = KMeans(n_clusters=i, n_init=20).fit([[cc, mm, t] for cc, mm, t in zip(c, m, tau)])
         labels = nbrs.labels_
         sil.append(silhouette_score([[cc, mm, t] for cc, mm, t in zip(c, m, tau)], labels,
                                     metric='euclidean'))
 
     # Doing this number of clusters
     optimal_num = sil.index(min(sil)) + 2
-    nbrs = KMeans(n_clusters=optimal_num).fit([[cc, mm, t] for cc, mm, t in zip(c, m, tau)])
+    nbrs = KMeans(n_clusters=optimal_num, n_init=20).fit([[cc, mm, t] for cc, mm, t in zip(c, m, tau)])
     labels = nbrs.labels_
 
     return labels
@@ -226,14 +228,14 @@ def knn_on_slow_fast_adapt_accel(response_vectors):
 
     sil = []
     for i in range(2, 5):
-        nbrs = KMeans(n_clusters=i).fit([[bf, mm, t] for bf, mm, t in zip(B_frac, m, tau)])
+        nbrs = KMeans(n_clusters=i, n_init=20).fit([[bf, mm, t] for bf, mm, t in zip(B_frac, m, tau)])
         labels = nbrs.labels_
         sil.append(silhouette_score([[bf, mm, t] for bf, mm, t in zip(B_frac, m, tau)], labels,
                                     metric='euclidean'))
 
     # Doing this number of clusters
     optimal_num = sil.index(min(sil)) + 2
-    nbrs = KMeans(n_clusters=optimal_num).fit([[bf, mm, t] for bf, mm, t in zip(B_frac, m, tau)])
+    nbrs = KMeans(n_clusters=optimal_num, n_init=20).fit([[bf, mm, t] for bf, mm, t in zip(B_frac, m, tau)])
     labels = nbrs.labels_
 
     return labels
@@ -244,13 +246,13 @@ def knn_full_response_vector(vectors):
 
     sil = []
     for i in range(2, 5):
-        nbrs = KMeans(n_clusters=i).fit(vectors)
+        nbrs = KMeans(n_clusters=i, n_init=20).fit(vectors)
         labels = nbrs.labels_
         sil.append(silhouette_score(vectors, labels, metric='euclidean'))
 
     # Doing this number of clusters
     optimal_num = sil.index(min(sil))
-    nbrs = KMeans(n_clusters=optimal_num).fit(vectors)
+    nbrs = KMeans(n_clusters=optimal_num, n_init=20).fit(vectors)
     labels = nbrs.labels_
 
     return labels

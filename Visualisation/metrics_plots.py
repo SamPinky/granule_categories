@@ -58,7 +58,7 @@ def plot_metrics_against_clusters(response_vectors, neurons, labels, clustering_
 
     axs[0, 2].set_ylabel("IFC (%)", size=15)
     axs[0, 2].set_xlabel("B_fraction", size=15)
-    sns.scatterplot(ax=axs[0, 2], x=m, y=B_frac, palette=sns.color_palette("hls", len(set(labels))), hue=labels)
+    sns.scatterplot(ax=axs[0, 2], x=B_frac, y=ifc, palette=sns.color_palette("hls", len(set(labels))), hue=labels)
 
 
     # Strong-weak
@@ -70,9 +70,9 @@ def plot_metrics_against_clusters(response_vectors, neurons, labels, clustering_
     axs[1, 1].set_xlabel("B_fraction", size=15)
     sns.scatterplot(ax=axs[1, 1], x=B_frac, y=mean, palette=sns.color_palette("hls", len(set(labels))), hue=labels)
 
-    axs[1, 2].set_ylabel("B_fraction", size=15)
-    axs[1, 2].set_xlabel("m (Hzs-1)", size=15)
-    sns.scatterplot(ax=axs[1, 2], x=max_v, y=c, palette=sns.color_palette("hls", len(set(labels))), hue=labels)
+    axs[1, 2].set_ylabel("B_Fraction (Hz)", size=15)
+    axs[1, 2].set_xlabel("m_norm (s-1)", size=15)
+    sns.scatterplot(ax=axs[1, 2], x=m, y=c, palette=sns.color_palette("hls", len(set(labels))), hue=labels)
 
 
     # Slow-Fast Onset
@@ -81,7 +81,7 @@ def plot_metrics_against_clusters(response_vectors, neurons, labels, clustering_
     sns.scatterplot(ax=axs[2, 0], x=c, y=tau, palette=sns.color_palette("hls", len(set(labels))), hue=labels)
 
     axs[2, 1].set_ylabel("Tau (s)", size=15)
-    axs[2, 1].set_xlabel("m (Hzs-1)", size=15)
+    axs[2, 1].set_xlabel("m_norm (s-1)", size=15)
     sns.scatterplot(ax=axs[2, 1], x=m, y=tau, palette=sns.color_palette("hls", len(set(labels))), hue=labels)
 
     axs[2, 2].set_ylabel("B_fraction", size=15)

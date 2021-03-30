@@ -67,39 +67,39 @@ def check_metric_normality(response_vectors):
 
     sns.histplot(sfc, ax=axs[0, 0])
     k2, p = stats.normaltest(sfc)
-    axs[0,0].set_title(f"sfc, p={p}")
+    axs[0,0].set_title(f"SFC, p={p}", fontsize=25)
 
     sns.histplot(ifc, ax=axs[0, 1])
     k2, p = stats.normaltest(ifc)
-    axs[0,1].set_title(f"ifc, p={p}")
+    axs[0,1].set_title(f"IFC, p={p}", fontsize=25)
 
     sns.histplot(f_initial, ax=axs[0, 2])
     k2, p = stats.normaltest(f_initial)
-    axs[0,2].set_title(f"f_initial, p={p}")
+    axs[0,2].set_title(f"F_initial, p={p}", fontsize=25)
 
     sns.histplot(B_frac, ax=axs[1, 0])
     k2, p = stats.normaltest(B_frac)
-    axs[1,0].set_title(f"B_frac, p={p}")
+    axs[1,0].set_title(f"B_fraction, p={p}", fontsize=25)
 
     sns.histplot(max_v, ax=axs[1, 1])
     k2, p = stats.normaltest(max_v)
-    axs[1,1].set_title(f"max_v, p={p}")
+    axs[1,1].set_title(f"Max, p={p}", fontsize=25)
 
     sns.histplot(mean, ax=axs[1, 2])
     k2, p = stats.normaltest(mean)
-    axs[1,2].set_title(f"mean, p={p}")
+    axs[1,2].set_title(f"Mean, p={p}", fontsize=25)
 
     sns.histplot(m, ax=axs[2, 0])
     k2, p = stats.normaltest(m)
-    axs[2,0].set_title(f"m, p={p}")
+    axs[2,0].set_title(f"m_norm, p={p}", fontsize=25)
 
     sns.histplot(c, ax=axs[2, 1])
     k2, p = stats.normaltest(c)
-    axs[2,1].set_title(f"c, p={p}")
+    axs[2,1].set_title(f"c, p={p}", fontsize=25)
 
     sns.histplot(tau, ax=axs[2, 2])
     k2, p = stats.normaltest(tau)
-    axs[2,2].set_title(f"tau, p={p}")
+    axs[2,2].set_title(f"tau, p={p}", fontsize=25)
 
     plt.show()
 

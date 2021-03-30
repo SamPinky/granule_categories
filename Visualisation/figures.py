@@ -129,9 +129,9 @@ def figure_3(cc_object):
 
 
 def figure_5(response_vectors, all_clusters):
-    cluster2 = [all_clusters.iloc[1, i] for i in range(len(all_clusters.columns))]
-    cluster3 = [all_clusters.iloc[2, i] for i in range(len(all_clusters.columns))]
-    cluster4 = [all_clusters.iloc[3, i] for i in range(len(all_clusters.columns))]
+    cluster2 = [str(all_clusters.iloc[1, i]) for i in range(len(all_clusters.columns))]
+    cluster3 = [str(all_clusters.iloc[2, i]) for i in range(len(all_clusters.columns))]
+    cluster4 = [str(all_clusters.iloc[3, i]) for i in range(len(all_clusters.columns))]
 
     sfc = [vector[0] for vector in response_vectors]
     for i, v in enumerate(sfc):
@@ -146,9 +146,10 @@ def figure_5(response_vectors, all_clusters):
     c = [vector[7] for vector in response_vectors]
     tau = [vector[8] for vector in response_vectors]
 
+    colours = {"0": "red", "1": "green", "2": "blue", "3": "yellow"}
     fig = plt.figure(figsize=(6, 6))
     ax = Axes3D(fig)
-    sc = ax.scatter(mean, max_v, B_frac, c=cluster2)
+    sc = ax.scatter(mean, max_v, B_frac, c=[colours[c] for c in cluster2])
     ax.set_xlabel("mean (Hz)", size=15)
     ax.set_ylabel("max (Hz)", size=15)
     ax.set_zlabel("B_fraction", size=15)
@@ -158,7 +159,7 @@ def figure_5(response_vectors, all_clusters):
 
     fig = plt.figure(figsize=(6, 6))
     ax = Axes3D(fig)
-    sc = ax.scatter(tau, c, m, c=cluster3)
+    sc = ax.scatter(tau, c, m, c=[colours[c] for c in cluster3])
     ax.set_xlabel("Tau (s)", size=15)
     ax.set_ylabel("c (Hz)", size=15)
     ax.set_zlabel("m_norm (s-1)", size=15)
@@ -168,7 +169,7 @@ def figure_5(response_vectors, all_clusters):
 
     fig = plt.figure(figsize=(6, 6))
     ax = Axes3D(fig)
-    sc = ax.scatter(B_frac, m, tau, c=cluster4)
+    sc = ax.scatter(B_frac, m, tau, c=[colours[c] for c in cluster4])
     ax.set_xlabel("B_fraction", size=15)
     ax.set_ylabel("m_norm (s-1)", size=15)
     ax.set_zlabel("Tau (s)", size=15)
