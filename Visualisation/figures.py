@@ -3,7 +3,8 @@ import numpy as np
 import seaborn as sns
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.colors import ListedColormap
-
+import matplotlib.cm as cmx
+import matplotlib
 
 from Processing.process_raw_trace import get_spike_times_for_cc
 from Processing.calculate_spike_rate import get_spike_times_for_epsp
@@ -178,4 +179,31 @@ def figure_5(response_vectors, all_clusters):
     plt.show()
 
 
+def figure_8(response_vectors, categories):
+    sfc = [vector[0] for vector in response_vectors]
+    for i, v in enumerate(sfc):
+        if v == 0:
+            sfc[i] = None
+    ifc = [vector[1] for vector in response_vectors]
+    mean = [vector[5] for vector in response_vectors]
+    m = [vector[6] for vector in response_vectors]
 
+    possible_categories = set(categories)
+    for i, cat in enumerate(categories):
+        for j, p in enumerate(possible_categories):
+            if cat == p:
+                categories[i] = j
+
+    cm = plt.get_cmap('jet')
+    cNorm = matplotlib.colors.Normalize(vmin=min(categories), vmax=max(categories))
+    scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=cm)
+
+    fig = plt.figure(figsize=(6, 6))
+    ax = Axes3D(fig)
+    sc = ax.scatter(ifc, mean, m, c=scalarMap.to_rgba(categories))
+    ax.set_xlabel("IFC (%)", size=15)
+    ax.set_ylabel("mean (Hz)", size=15)
+    ax.set_zlabel("m_norm (s-1)", size=15)
+    plt.legend(*sc.legend_elements(), bbox_to_anchor=(1.05, 1), loc=2)
+    plt.savefig("scatter_hue3", bbox_inches='tight')
+    plt.show()
