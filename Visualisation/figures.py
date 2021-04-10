@@ -129,7 +129,7 @@ def figure_3(cc_object):
     plt.show()
 
 
-def figure_5(response_vectors, all_clusters):
+def figure_6(response_vectors, all_clusters):
     cluster2 = [str(all_clusters.iloc[1, i]) for i in range(len(all_clusters.columns))]
     cluster3 = [str(all_clusters.iloc[2, i]) for i in range(len(all_clusters.columns))]
     cluster4 = [str(all_clusters.iloc[3, i]) for i in range(len(all_clusters.columns))]
@@ -155,7 +155,7 @@ def figure_5(response_vectors, all_clusters):
     ax.set_ylabel("max (Hz)", size=15)
     ax.set_zlabel("B_fraction", size=15)
     plt.legend(*sc.legend_elements(), bbox_to_anchor=(1.05, 1), loc=2)
-    plt.savefig("scatter_hue1", bbox_inches='tight')
+    plt.savefig("figure6a", bbox_inches='tight')
     plt.show()
 
     fig = plt.figure(figsize=(6, 6))
@@ -165,7 +165,7 @@ def figure_5(response_vectors, all_clusters):
     ax.set_ylabel("c (Hz)", size=15)
     ax.set_zlabel("m_norm (s-1)", size=15)
     plt.legend(*sc.legend_elements(), bbox_to_anchor=(1.05, 1), loc=2)
-    plt.savefig("scatter_hue2", bbox_inches='tight')
+    plt.savefig("figure6b", bbox_inches='tight')
     plt.show()
 
     fig = plt.figure(figsize=(6, 6))
@@ -175,11 +175,11 @@ def figure_5(response_vectors, all_clusters):
     ax.set_ylabel("m_norm (s-1)", size=15)
     ax.set_zlabel("Tau (s)", size=15)
     plt.legend(*sc.legend_elements(), bbox_to_anchor=(1.05, 1), loc=2)
-    plt.savefig("scatter_hue3", bbox_inches='tight')
+    plt.savefig("figure6c", bbox_inches='tight')
     plt.show()
 
 
-def figure_8(response_vectors, categories):
+def figure_7(response_vectors, categories):
     sfc = [vector[0] for vector in response_vectors]
     for i, v in enumerate(sfc):
         if v == 0:
@@ -205,5 +205,5 @@ def figure_8(response_vectors, categories):
     ax.set_ylabel("mean (Hz)", size=15)
     ax.set_zlabel("m_norm (s-1)", size=15)
     plt.legend(*sc.legend_elements(), bbox_to_anchor=(1.05, 1), loc=2)
-    plt.savefig("scatter_hue3", bbox_inches='tight')
+    plt.savefig("figure7", bbox_inches='tight')
     plt.show()

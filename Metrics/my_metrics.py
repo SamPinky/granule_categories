@@ -204,7 +204,7 @@ def compute_neuron_vectors(cc_objects, epsp_objects):
             # vector.append(0)
             # vector.append(0)
         vectors.append(vector)
-    return np.array(vectors), neuron_names
+    return np.array(vectors), list(neuron_names)
 
 
 def get_all_kdfs(cc_objects, epsp_objects):
